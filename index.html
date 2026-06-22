@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen Immersive Elite Randomizer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
+    <style>
+        /* Noto Sans Lao & Orbitron Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background: radial-gradient(circle at center, #0b1528 0%, #02040a 100%);
+            background-size: cover;
+            background-position: center;
+            color: #f1f5f9;
+            overflow: hidden;
+        }
+        .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Overfront effects canvas - Highest Z-Index for particles to fall in front of modal text */
+        #effectsCanvas {
+            display: none;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10030;
+        }
+        #virtualCursor {
+            width: 40px;
+            height: 40px;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+        
+        /* Esiimsi Cup shaker keyframes */
+        @keyframes esiimsiRattle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-8px, -18px) rotate(-8deg); }
+            20% { transform: translate(10px, 4px) rotate(10deg); }
+            30% { transform: translate(-12px, -14px) rotate(-12deg); }
+            40% { transform: translate(12px, 2px) rotate(8deg); }
+            50% { transform: translate(-10px, -10px) rotate(-10deg); }
+            60% { transform: translate(10px, 4px) rotate(6deg); }
+            70% { transform: translate(-6px, -6px) rotate(-6deg); }
+            80% { transform: translate(6px, 2px) rotate(4deg); }
+            90% { transform: translate(-3px, -2px) rotate(-2deg); }
+        }
+        .esiimsi-cup-shake, .animate-cup-shake {
+            animation: esiimsiRattle 0.15s infinite;
+        }
+        
+        /* Chasing LEDs around slot frame */
+        @keyframes ledFlash1 { 0%, 100% { border-color: #22d3ee; box-shadow: 0 0 15px #22d3ee; } 50% { border-color: #06b6d4; box-shadow: 0 0 5px #06b6d4; } }
+        @keyframes ledFlash2 { 0%, 100% { border-color: #fbbf24; box-shadow: 0 0 15px #fbbf24; } 50% { border-color: #d97706; box-shadow: 0 0 5px #d97706; } }
+        @keyframes ledFlash3 { 0%, 100% { border-color: #ec4899; box-shadow: 0 0 15px #ec4899; } 50% { border-color: #db2777; box-shadow: 0 0 5px #db2777; } }
+        @keyframes ledFlash4 { 0%, 100% { border-color: #a855f7; box-shadow: 0 0 15px #a855f7; } 50% { border-color: #9333ea; box-shadow: 0 0 5px #9333ea; } }
+        .led-active-1 { animation: ledFlash1 0.6s infinite; }
+        .led-active-2 { animation: ledFlash2 0.6s infinite; }
+        .led-active-3 { animation: ledFlash3 0.6s infinite; }
+        .led-active-4 { animation: ledFlash4 0.6s infinite; }
+        
+        /* 3D Card flips */
+        .card-perspective {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            inset: 0;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        
+        /* Premium Winner Name animation (Yellow color, Solid black outline, Single line) */
+        .winner-text-animated {
+            animation: winnerPop 2.2s infinite ease-in-out;
+            font-size: 4.5rem; /* Default fallback */
+            color: #facc15; /* Vibrant Gold/Yellow */
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(250, 204, 21, 0.6);
+            -webkit-text-stroke: 2px rgba(0, 0, 0, 0.95);
+            white-space: nowrap;
+            max-width: 100%;
+            display: inline-block;
+        }
+        @keyframes winnerPop {
+            0% { transform: scale(0.9) rotate(-1deg); filter: brightness(0.95); text-shadow: 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(250, 204, 21, 0.6); }
+            50% { transform: scale(1.08) rotate(1deg); filter: brightness(1.15); text-shadow: 0 4px 25px rgba(0, 0, 0, 0.95), 0 0 60px rgba(250, 204, 21, 0.95), 0 0 100px rgba(245, 158, 11, 0.85); }
+            100% { transform: scale(0.9) rotate(-1deg); filter: brightness(0.95); text-shadow: 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(250, 204, 21, 0.6); }
+        }
+        @keyframes winnerCardPop {
+            0%   { opacity: 0; transform: scale(0.6) translateY(20px); }
+            60%  { opacity: 1; transform: scale(1.05) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-winner-card-pop {
+            opacity: 0;
+            animation: winnerCardPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        
+        /* Animations */
+        .animate-spin-slow {
+            animation: spin 20s linear infinite;
+        }
+        
+        /* Animated Start Draw Button Styles */
+        .ui-anim-btn-container {
+            position: relative;
+            display: inline-block;
+        }
+        .ui-anim-btn {
+            position: relative;
+            height: 3rem; /* h-12 */
+            width: 16rem; /* w-64 */
+            overflow: hidden;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #0a0a0a; /* neutral-950 */
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --highlight-hue: 210deg;
+            outline: none;
+        }
+        .ui-anim-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .ui-anim-btn:active {
+            transform: scale(0.98);
+        }
+        .ui-anim-btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 4px #a3a3a3;
+        }
+        .ui-anim-btn:disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        /* Conic spinning border glow */
+        .ui-btn-glow-container {
+            position: absolute;
+            inset: 0;
+            display: block;
+            border-radius: 9999px;
+            padding: 1.5px;
+        }
+        .ui-btn-glow-spin {
+            position: absolute;
+            inset: 0;
+            display: block;
+            border-radius: 9999px;
+            background: conic-gradient(from 0deg, transparent 40%, hsla(var(--highlight-hue), 80%, 60%, 0.8) 50%, transparent 60%);
+            animation: spin 6s linear infinite;
+        }
+        
+        /* Base button surface overlay */
+        .ui-btn-surface {
+            position: absolute;
+            inset: 1.5px;
+            display: block;
+            border-radius: 9999px;
+            background-color: rgba(10, 10, 10, 0.9);
+            transition: background-color 0.3s;
+        }
+        .ui-anim-btn:hover .ui-btn-surface {
+            background-color: #0a0a0a;
+        }
+        
+        /* Highlight border bottom */
+        .ui-btn-highlight-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.8), transparent);
+            transition: opacity 0.5s;
+            opacity: 0;
+        }
+        .ui-anim-btn:hover .ui-btn-highlight-bottom {
+            opacity: 1;
+        }
+        
+        /* Flare overlays */
+        .ui-btn-flare {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .ui-anim-btn:hover .ui-btn-flare {
+            opacity: 1;
+        }
+        .ui-btn-flare-radial {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(40% 40% at 50% 50%, hsla(var(--highlight-hue), 80%, 60%, 0.15), transparent);
+        }
+        .ui-btn-flare-top-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+        
+        /* Sparkles */
+        .ui-btn-sparkle-left {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: #22d3ee;
+            opacity: 0;
+            transition: all 0.5s;
+        }
+        .ui-anim-btn:hover .ui-btn-sparkle-left {
+            opacity: 1;
+            transform: translate(0.25rem, calc(-50% - 0.5rem));
+        }
+        
+        .ui-btn-sparkle-right {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: #22d3ee;
+            opacity: 0;
+            transition: all 0.5s;
+        }
+        .ui-anim-btn:hover .ui-btn-sparkle-right {
+            opacity: 1;
+            transform: translate(-0.25rem, calc(-50% + 0.25rem));
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.25);
+        }
+    </style>
+</head>
+<body class="h-full w-full overflow-hidden select-none">
+
+    <!-- OVERFRONT CANVAS FOR FLOATING CELEBRATIONS -->
+    <canvas id="effectsCanvas"></canvas>
+
+    <!-- Virtual Glowing Hand Cursor -->
+    <div id="virtualCursor">
+        <i class="fa-solid fa-hand-pointer text-cyan-400 text-3xl filter drop-shadow-[0_0_10px_rgba(34,211,238,0.95)]"></i>
+    </div>
+
+    <!-- Hand Tracking Video Overlay -->
+    <div id="gesturePreviewContainer" class="fixed bottom-6 left-6 z-[900] hidden bg-slate-950/95 p-2 rounded-2xl border border-teal-500/30 shadow-2xl">
+        <p class="text-[10px] text-teal-400 font-bold mb-1 tech-font"><i class="fa-solid fa-camera mr-1"></i> GESTURE CAPTURE</p>
+        <video id="webcam" class="w-36 h-28 rounded-xl border border-slate-800 bg-black" autoplay playsinline></video>
+        <p id="gestureStatus" class="text-[10px] text-slate-400 text-center mt-1">ກຳລັງກວດຈັບ...</p>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT (3 columns) -->
+    <div class="w-full h-full flex flex-row overflow-hidden relative">
+
+        <!-- COLUMN 1: LEFT PANEL CONTROL CENTER (Tied to settingsModal ID for compatibility) -->
+        <aside id="settingsModal" class="w-96 h-full bg-slate-950 border-r border-slate-800 flex flex-col shadow-2xl shrink-0 transition-all duration-300 z-30">
+            <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/40">
+                <h2 class="text-xs font-bold tech-font text-cyan-400"><i class="fa-solid fa-gears mr-2"></i>CONTROL CENTER</h2>
+            </header>
+
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Tab Controls -->
+                <aside class="w-[96px] bg-slate-950 p-2 flex flex-col gap-1 border-r border-slate-800 shrink-0">
+                    <button onclick="switchTab('tab-names')" class="tab-btn w-full text-left px-2 py-2.5 rounded text-[10px] font-bold hover:bg-slate-800 transition bg-slate-800 text-white" id="btn-tab-names">
+                        <i class="fa-solid fa-users mr-1"></i>ລາຍຊື່
+                    </button>
+                    <button onclick="switchTab('tab-modes')" class="tab-btn w-full text-left px-2 py-2.5 rounded text-[10px] font-bold hover:bg-slate-800 transition text-slate-400" id="btn-tab-modes">
+                        <i class="fa-solid fa-palette mr-1"></i>ຕັ້ງຄ່າ
+                    </button>
+                    <button onclick="switchTab('tab-media')" class="tab-btn w-full text-left px-2 py-2.5 rounded text-[10px] font-bold hover:bg-slate-800 transition text-slate-400" id="btn-tab-media">
+                        <i class="fa-solid fa-file-image mr-1"></i>ສື່
+                    </button>
+                    <button onclick="switchTab('tab-gesture')" class="tab-btn w-full text-left px-2 py-2.5 rounded text-[10px] font-bold hover:bg-slate-800 transition text-slate-400" id="btn-tab-gesture">
+                        <i class="fa-solid fa-hand mr-1"></i>Gesture
+                    </button>
+                </aside>
+
+                <!-- Configuration Panels Container -->
+                <div class="flex-1 p-4 overflow-y-auto bg-slate-900/40" id="settingsContent">
+                    
+                    <!-- Names Manager Panel -->
+                    <section id="tab-names" class="tab-pane flex flex-col gap-4">
+                        <div class="flex gap-1.5">
+                            <select id="templateSelect" onchange="loadSavedTemplate(this.value)" class="flex-1 bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none">
+                                <option value="">-- ເລືອກ Template --</option>
+                            </select>
+                            <button onclick="deleteTemplate()" class="px-3 bg-red-950 border border-red-900 text-red-400 rounded text-xs hover:bg-red-900 transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">PARTICIPANTS LIST (1 ຊື່ຕໍ່ແຖວ)</label>
+                            <textarea id="namesInput" rows="9" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 resize-none font-sans" placeholder="ໃສ່ຊື່ຢູ່ບ່ອນນີ້..."></textarea>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+                            <input type="checkbox" id="removeWinnerToggle" class="w-4 h-4 text-cyan-600 bg-slate-950 border-slate-800 rounded focus:ring-cyan-500 cursor-pointer" checked>
+                            <label for="removeWinnerToggle" class="text-xs text-slate-300 cursor-pointer">ລຶບຊື່ອອກເມື່ອຊະນະແລ້ວ</label>
+                        </div>
+                        <div class="flex gap-1.5 items-center">
+                            <input type="text" id="newTemplateName" placeholder="ຊື່ Template ໃໝ່..." class="flex-1 bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none">
+                            <button onclick="saveCurrentAsTemplate()" class="px-3 py-2 bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border border-cyan-800 rounded text-xs font-bold transition">ບັນທຶກ</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 border-t border-slate-800 pt-3">
+                            <button onclick="importSampleNames()" class="flex-1 px-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition">ຕົວຢ່າງ</button>
+                            <button onclick="resetNames()" class="flex-1 px-2 py-2 bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 rounded text-xs font-bold transition">Reset</button>
+                            <button onclick="clearNames()" class="flex-1 px-2 py-2 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 rounded text-xs font-bold transition">ລ້າງ</button>
+                        </div>
+                    </section>
+
+                    <!-- Modes Manager Panel -->
+                    <section id="tab-modes" class="tab-pane hidden flex flex-col gap-4">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-2 tech-font">CHOOSE DRAW MODE (ຮູບແບບ)</label>
+                            <div class="grid grid-cols-1 gap-2" id="drawModeSelector">
+                                <button onclick="setDrawMode('wheel')" id="mode-wheel" class="mode-select-btn p-2.5 bg-slate-950 border-2 border-transparent rounded-xl text-left hover:bg-slate-850 flex items-center justify-between transition">
+                                    <h4 class="font-bold text-slate-300 text-xs"><i class="fa-solid fa-circle-notch mr-2 text-cyan-400"></i>ວົງລໍ້ (Wheel Mode)</h4>
+                                    <i class="fa-solid fa-circle-check text-cyan-400 hidden check-icon"></i>
+                                </button>
+                                <button onclick="setDrawMode('slot')" id="mode-slot" class="mode-select-btn p-2.5 bg-slate-950 border-2 border-transparent rounded-xl text-left hover:bg-slate-850 flex items-center justify-between transition">
+                                    <h4 class="font-bold text-slate-300 text-xs"><i class="fa-solid fa-square-poll-vertical mr-2 text-yellow-500"></i>ສະລັອດ (Slot Mode)</h4>
+                                    <i class="fa-solid fa-circle-check text-cyan-400 hidden check-icon"></i>
+                                </button>
+                                <button onclick="setDrawMode('cards')" id="mode-cards" class="mode-select-btn p-2.5 bg-slate-950 border-2 border-transparent rounded-xl text-left hover:bg-slate-850 flex items-center justify-between transition">
+                                    <h4 class="font-bold text-slate-300 text-xs"><i class="fa-solid fa-clone mr-2 text-pink-500"></i>ເປີດບັດ (Card Flip)</h4>
+                                    <i class="fa-solid fa-circle-check text-cyan-400 hidden check-icon"></i>
+                                </button>
+                                <button onclick="setDrawMode('raffle')" id="mode-raffle" class="mode-select-btn p-2.5 bg-slate-950 border-2 border-transparent rounded-xl text-left hover:bg-slate-850 flex items-center justify-between transition">
+                                    <h4 class="font-bold text-slate-300 text-xs"><i class="fa-solid fa-mortar-pestle mr-2 text-emerald-400"></i>ເຊຽມຊີ (Esiimsi Mode)</h4>
+                                    <i class="fa-solid fa-circle-check text-cyan-400 hidden check-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="wheelThemeSection">
+                            <label class="block text-[10px] text-slate-400 font-bold mb-2 tech-font">WHEEL THEME (ແທມວົງລໍ້)</label>
+                            <div class="grid grid-cols-1 gap-1.5" id="wheelThemeSelector">
+                                <button onclick="setWheelTheme('casino')" id="theme-casino" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Casino Gold</button>
+                                <button onclick="setWheelTheme('cyberpunk')" id="theme-cyberpunk" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Neon Cyber</button>
+                                <button onclick="setWheelTheme('wood')" id="theme-wood" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Brass Wood</button>
+                            </div>
+                        </div>
+                        <div id="cardCountSection" class="hidden">
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">CARD COUNT (ຈຳນວນບັດ)</label>
+                            <input type="number" id="cardCountInput" value="8" min="2" max="24" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">DURATION (ເວລາສຸ່ມ)</label>
+                            <input id="drawDuration" type="range" min="2" max="15" value="5" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                            <div class="text-[11px] text-slate-400 mt-1 text-right"><span id="durationVal" class="text-cyan-400 font-bold tech-font">5</span> ວິນາທີ</div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">WINNERS PER ROUND (ຈຳນວນຜູ້ຊະນະຕໍ່ຮອບ)</label>
+                            <input type="number" id="winnersPerRound" value="1" min="1" max="100" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none">
+                        </div>
+                    </section>
+
+                    <!-- Media Panel -->
+                    <section id="tab-media" class="tab-pane hidden flex flex-col gap-4">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">BACKGROUND (ພາບພື້ນຫຼັງ)</label>
+                            <input type="file" id="bgUpload" accept="image/*" class="w-full text-xs text-slate-400 bg-slate-950 border border-slate-800 rounded p-1.5" onchange="handleBackgroundUpload(event)">
+                            <span id="bgUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="bgUploadName"></span></span>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">BRAND LOGO (ໂລໂກ້)</label>
+                            <input type="file" id="logoUpload" accept="image/*" class="w-full text-xs text-slate-400 bg-slate-950 border border-slate-800 rounded p-1.5" onchange="handleLogoUpload(event)">
+                            <span id="logoUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="logoUploadName"></span></span>
+                        </div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex flex-col gap-3">
+                            <h4 class="text-[10px] font-bold text-cyan-400 tech-font"><i class="fa-solid fa-volume-high mr-1"></i> CUSTOM AUDIO DECODER</h4>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">ສຽງຂະນະໝຸນ (Loop Track)</label>
+                                <input type="file" id="soundTickUpload" accept="audio/*" class="w-full text-xs text-slate-400 bg-slate-900 border border-slate-850 rounded p-1" onchange="handleSoundTick(event)">
+                                <span id="tickUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="tickUploadName"></span> <i class="fa-solid fa-floppy-disk text-yellow-500 ml-1" title="ບັນທຶກເຂົ້າ Template ໄດ້"></i></span>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">ສຽງຕອນຊະນະ (Fanfare Track)</label>
+                                <input type="file" id="soundWinUpload" accept="audio/*" class="w-full text-xs text-slate-400 bg-slate-900 border border-slate-850 rounded p-1" onchange="handleSoundWin(event)">
+                                <span id="winSoundUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="winSoundUploadName"></span> <i class="fa-solid fa-floppy-disk text-yellow-500 ml-1" title="ບັນທຶກເຂົ້າ Template ໄດ້"></i></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">CELEBRATION EFFECT (ເອັບເຟັກ)</label>
+                            <select id="effectType" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none" onchange="handleEffectTypeChange(this.value)">
+                                <option value="confetti">Fireworks/Confetti</option>
+                                <option value="bitcoin">Bitcoin Coins</option>
+                                <option value="customParticle">Custom PNG Image</option>
+                                <option value="flowers">Pink Flowers</option>
+                                <option value="food">Pizza and Burgers</option>
+                            </select>
+                        </div>
+                        <div id="customParticleContainer" class="hidden bg-slate-950 p-3 rounded-lg border border-slate-850">
+                            <label class="block text-xs font-semibold text-teal-400 mb-2">ອັບໂຫຼດ PNG ສຳລັບເອັບເຟັກ</label>
+                            <input type="file" id="customParticleUpload" accept="image/png" class="w-full text-xs text-slate-400 bg-slate-900 border border-slate-800 rounded p-2" onchange="handleCustomParticleUpload(event)">
+                            <span id="particleUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="particleUploadName"></span> <i class="fa-solid fa-floppy-disk text-yellow-500 ml-1" title="ບັນທຶກເຂົ້າ Template ໄດ້"></i></span>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1.5 tech-font">MASCOT IMAGE (ຮູບ Mascot ຜູ້ໂຊກດີ)</label>
+                            <input type="file" id="mascotUpload" accept="image/*" class="w-full text-xs text-slate-400 bg-slate-950 border border-slate-800 rounded p-1.5" onchange="handleMascotUpload(event)">
+                            <span id="mascotUploadStatus" class="hidden mt-1 text-[10px] text-teal-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> <span id="mascotUploadName"></span></span>
+                        </div>
+                    </section>
+
+                    <!-- Gesture Panel -->
+                    <section id="tab-gesture" class="tab-pane hidden flex flex-col gap-4">
+                        <div class="bg-slate-950 p-3.5 border border-slate-800 rounded-lg">
+                            <h3 class="text-[10px] font-bold text-teal-400 mb-1 tech-font"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> HAND GESTURE CONTROL</h3>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">ຍົກມືຂຶ້ນກ້ອງເພື່ອເປີດ Virtual Cursor. ເພື່ອໝຸນວົງລໍ້ ໃຫ້ເຮັດທ່າ **ກຳມື (Fist)** ໃສ່ວົງລໍ້ແລ້ວ **ລາກປັດມື** ໄປຕາມທິດທາງ.</p>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <span class="text-xs text-slate-300 font-semibold">ເປີດລະບົບກວດຈັບມື</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="gestureToggle" class="sr-only peer" onchange="toggleGestureControl(this.checked)">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
+                            </label>
+                        </div>
+                    </section>
+                    
+                    <!-- Dummy section for compatibility -->
+                    <section id="tab-history" class="tab-pane hidden"></section>
+                </div>
+            </div>
+            
+            <footer class="p-4 border-t border-slate-800 flex justify-end bg-slate-950/40">
+                <button onclick="saveSettings()" class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-bold text-xs transition tracking-wider w-full">Apply Changes (ບັນທຶກ & ນຳໃຊ້)</button>
+            </footer>
+        </aside>
+
+        <!-- COLUMN 2: CENTER WORKSPACE (THE MAIN VIEWPORT) -->
+        <main class="flex-1 flex flex-col relative items-center justify-center p-6 overflow-hidden">
+            <!-- Floating Zen View Toggle Button -->
+            <button id="zenToggleBtn" onclick="toggleZenMode()" class="absolute top-6 left-6 w-10 h-10 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-slate-200 flex items-center justify-center transition active:scale-95 z-40" title="ຊ່ອນເຄື່ອງມື (Hide Tools)">
+                <i class="fa-solid fa-eye-slash"></i>
+            </button>
+
+            <!-- 1. Wheel Workspace -->
+            <div id="wheelContainer" class="w-full h-full max-h-[85vh] max-w-[85vh] flex items-center justify-center relative cursor-pointer premium-shadow">
+                <!-- Neon pink Pointer from reference -->
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[22px] border-r-[22px] border-t-[38px] border-l-transparent border-r-transparent border-t-pink-500 z-30 filter drop-shadow-[0_0_15px_rgba(236,72,153,0.9)]"></div>
+                <canvas id="wheelCanvas" width="950" height="950" class="w-full h-full rounded-full" onmousedown="handleWheelDragStart(event)" onmousemove="handleWheelDrag(event)" onmouseup="handleWheelDragEnd()"></canvas>
+            </div>
+
+            <!-- 2. Casino Slot Machine Cabinet -->
+            <div id="slotContainer" class="hidden w-full max-w-4xl flex items-center justify-center relative premium-shadow">
+                <div class="w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-[10px] border-slate-850 rounded-[2.5rem] p-8 shadow-2xl relative flex flex-col items-center gap-6">
+                    <!-- Neon flashing title -->
+                    <div class="absolute -top-7 bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-500 text-slate-950 px-10 py-1.5 rounded-full text-sm font-extrabold tracking-widest tech-font shadow-2xl border-4 border-slate-950 animate-pulse">CASINO GOLD SLOT</div>
+                    
+                    <!-- Inner slot screen with LED lights container -->
+                    <div id="slotLedFrame" class="w-full h-[320px] bg-slate-950 rounded-3xl border-8 border-slate-950 relative overflow-visible shadow-[0_0_50px_rgba(234,179,8,0.15)]">
+                        <canvas id="slotCanvas" width="1200" height="300" class="w-full h-full rounded-2xl"></canvas>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none rounded-2xl"></div>
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-24 border-y-4 border-yellow-500/35 bg-yellow-500/5 pointer-events-none shadow-[0_0_25px_rgba(234,179,8,0.1)]"></div>
+                    </div>
+                </div>
+                <!-- Physical Lever Pull -->
+                <div id="slotLever" class="w-20 h-56 relative -ml-2 flex flex-col items-center cursor-pointer" onclick="pullSlotLever()">
+                    <div class="w-4 h-36 bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 rounded-b-lg lever-shaft origin-bottom shadow-2xl"></div>
+                    <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 rounded-full absolute top-0 shadow-[0_0_25px_rgba(239,68,68,0.7)] -translate-y-6 active:scale-95 transition" id="leverBall"></div>
+                    <div class="w-16 h-12 bg-slate-800 border-2 border-slate-700 rounded-t-2xl absolute bottom-0 shadow-2xl"></div>
+                </div>
+            </div>
+
+            <!-- 3. Card Flip Grid -->
+            <div id="cardContainer" class="hidden w-full max-w-4xl grid gap-4 p-4 overflow-y-auto max-h-[80vh]"></div>
+
+            <!-- 4. Chinese Esiimsi Bamboo Cup Mode -->
+            <div id="esiimsiContainer" class="hidden w-full max-w-2xl flex flex-col items-center justify-center relative">
+                <div class="relative w-[360px] h-[500px] flex flex-col items-center justify-center select-none">
+                    
+                    <div id="esiimsiCup" class="w-64 h-[350px] bg-gradient-to-b from-red-800 via-red-950 to-red-900 border-t-[12px] border-yellow-500 border-b-[8px] border-yellow-600/40 rounded-b-[3.5rem] shadow-[0_25px_50px_rgba(0,0,0,0.65)] flex flex-col items-center justify-between py-8 esiimsi-cup cursor-pointer relative" onclick="startDraw()">
+                        <!-- Decorative Golden Bands -->
+                        <div class="absolute top-1/4 inset-x-0 h-4 bg-gradient-to-b from-yellow-500 via-amber-400 to-yellow-600 border-y border-yellow-300/40 opacity-90 shadow-md"></div>
+                        <div class="absolute bottom-12 inset-x-0 h-4 bg-gradient-to-b from-yellow-500 via-amber-400 to-yellow-600 border-y border-yellow-300/40 opacity-90 shadow-md"></div>
+                        
+                        <!-- Calligraphic Fortune Symbol -->
+                        <div class="w-20 h-20 rounded-full border-4 border-yellow-500/80 bg-red-950/80 flex items-center justify-center shadow-inner z-10">
+                            <span class="text-yellow-500 text-3xl font-extrabold tech-font filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]">福</span>
+                        </div>
+
+                        <div class="text-[10px] font-bold tracking-[0.2em] text-yellow-400 border border-yellow-500/40 px-4 py-1.5 bg-black/55 rounded-full z-10 shadow-lg">ເຊຽມຊີ (ESIIMSI)</div>
+                        
+                        <!-- Top Bamboo Sticks protruding out -->
+                        <div class="absolute -top-24 inset-x-0 flex justify-center gap-1.5 overflow-visible h-28 pointer-events-none z-0">
+                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform -rotate-12 shadow-md border-r border-amber-700"></div>
+                            <div class="w-3 h-28 bg-amber-600 rounded-t-lg transform rotate-6 shadow-md border-r border-amber-800"></div>
+                            <div class="w-3 h-28 bg-amber-400 rounded-t-lg transform -rotate-3 shadow-md border-r border-amber-700"></div>
+                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform rotate-15 shadow-md border-r border-amber-800"></div>
+                            <div class="w-3 h-28 bg-amber-600 rounded-t-lg transform -rotate-6 shadow-md border-r border-amber-700"></div>
+                            <div class="w-3 h-28 bg-amber-400 rounded-t-lg transform rotate-10 shadow-md border-r border-amber-800"></div>
+                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform -rotate-10 shadow-md border-r border-amber-700"></div>
+                        </div>
+                    </div>
+
+                    <!-- Enlarged Wooden Stick -->
+                    <div id="esiimsiWinningStick" class="hidden absolute bottom-16 w-14 h-[350px] bg-gradient-to-b from-amber-100 via-amber-200 to-yellow-400 border-[3px] border-yellow-600 rounded-t-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex items-center justify-center font-bold text-red-950 text-xs tracking-widest [writing-mode:vertical-lr] py-6 transition-all duration-1000 z-20">
+                        <span id="esiimsiWinnerName" class="drop-shadow filter drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)]">LUCKY WINNER</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-4 font-semibold bg-slate-900/50 px-6 py-1.5 rounded-full border border-slate-800/40">ຄລິກໃສ່ກະບອກ ເພື່ອສັ່ນເຊຽມຊີ</p>
+            </div>
+
+            <!-- Start Spin Action Button -->
+            <div class="ui-anim-btn-container mt-8" id="drawActionContainer">
+                <button id="drawActionBtn" onclick="startDraw()" class="ui-anim-btn group" style="--highlight-hue: 210deg;">
+                    <!-- Animated border glow container -->
+                    <span class="ui-btn-glow-container">
+                        <span class="ui-btn-glow-spin"></span>
+                    </span>
+
+                    <!-- Base button surface -->
+                    <span class="ui-btn-surface"></span>
+
+                    <!-- Dynamic Highlight Effect -->
+                    <div class="ui-btn-highlight-bottom"></div>
+
+                    <!-- Highlight flare overlays -->
+                    <div class="ui-btn-flare">
+                        <div class="ui-btn-flare-radial"></div>
+                        <div class="ui-btn-flare-top-line"></div>
+                    </div>
+
+                    <!-- Sparkles / SVG group -->
+                    <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+                        <!-- Sparkle Left -->
+                        <svg class="ui-btn-sparkle-left animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        <!-- Sparkle Right -->
+                        <svg class="ui-btn-sparkle-right animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                    </div>
+
+                    <!-- Text Container with dynamic layout -->
+                    <div class="relative z-10 flex items-center justify-center gap-2">
+                        <!-- Idle label -->
+                        <span id="btnLabelIdle" class="inline-flex items-center gap-1.5 transition-all duration-500 translate-y-0 opacity-100 scale-100">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xs text-cyan-400"></i>
+                            START DRAW (ສຸ່ມ)
+                        </span>
+
+                        <!-- Active label (absolute overlay) -->
+                        <span id="btnLabelActive" class="absolute inline-flex items-center gap-1.5 transition-all duration-500 -translate-y-4 opacity-0 scale-95 pointer-events-none">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            DRAWING (ກຳລັງສຸ່ມ)
+                        </span>
+                    </div>
+                </button>
+            </div>
+        </main>
+
+        <!-- COLUMN 3: RIGHT PANEL LOGS & STANDINGS -->
+        <aside id="rightPanel" class="w-80 h-full bg-slate-950 border-l border-slate-800 flex flex-col shadow-2xl shrink-0 transition-all duration-300 z-30">
+            <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/40">
+                <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-simple text-cyan-400 text-sm"></i>
+                    <h2 class="text-xs font-bold tech-font tracking-wider text-cyan-400">LOGS & STANDINGS</h2>
+                </div>
+                <button onclick="toggleFullScreen()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 flex items-center justify-center transition"><i class="fa-solid fa-expand text-xs"></i></button>
+            </header>
+
+            <!-- Tabs Switcher for Right Panel -->
+            <div class="flex border-b border-slate-800 text-[10px] font-bold">
+                <button onclick="switchRightTab('winners')" id="rightTabBtn-winners" class="flex-1 py-2 text-center border-b-2 border-yellow-500 text-yellow-400 font-bold bg-slate-900/30">
+                    <i class="fa-solid fa-trophy mr-1"></i>ຜູ້ຊະນະ (<span id="winnerCountBadge">0</span>)
+                </button>
+                <button onclick="switchRightTab('remaining')" id="rightTabBtn-remaining" class="flex-1 py-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold">
+                    <i class="fa-solid fa-users mr-1"></i>ທີ່ເຫຼືອ (<span id="remainingCountBadge">0</span>)
+                </button>
+            </div>
+
+            <!-- Tab Content area -->
+            <div class="flex-1 overflow-hidden flex flex-col">
+                <!-- TAB CONTENT: WINNERS -->
+                <div id="rightTab-winners" class="flex-1 flex flex-col overflow-hidden">
+                    <div class="flex-1 overflow-y-auto p-4">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-500 pb-2">
+                                    <th class="py-2">#</th>
+                                    <th class="py-2">ລາຍຊື່ຜູ້ຊະນະ</th>
+                                    <th class="py-2 text-right">ເວລາ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="winnersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                <!-- Winners appended dynamically here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-800 bg-slate-950/30 flex gap-2">
+                        <button onclick="exportWinnersToCSV()" class="w-full py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg text-xs font-bold transition text-slate-300 flex items-center justify-center gap-1.5"><i class="fa-solid fa-file-csv"></i> EXPORT CSV (ຜູ້ຊະນະ)</button>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: REMAINING PARTICIPANTS -->
+                <div id="rightTab-remaining" class="flex-1 flex flex-col overflow-hidden hidden">
+                    <div class="flex-1 overflow-y-auto p-4">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-500 pb-2">
+                                    <th class="py-2">ລຳດັບ</th>
+                                    <th class="py-2">ລາຍຊື່ທີ່ເຫຼືອ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="remainingTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                <!-- Remaining participants appended dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-800 bg-slate-950/30 flex gap-2">
+                        <button onclick="exportRemainingToCSV()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg text-xs font-bold transition text-slate-300 flex items-center justify-center gap-1.5"><i class="fa-solid fa-file-csv"></i> EXPORT CSV</button>
+                        <button onclick="resetNames()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg text-xs font-bold transition text-red-400 flex items-center justify-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> RESET ALL</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- WINNER CELEBRATION MODAL (Translucent backdrop, z-index 10020, behind canvas z-index 10030) -->
+    <div id="winnerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[10020] flex items-center justify-center hidden">
+        <div class="text-center flex flex-col items-center max-w-5xl w-full p-6 relative">
+            
+            <!-- Rotating Glow Halo -->
+            <div class="absolute inset-0 flex items-center justify-center -z-10 animate-spin-slow animate-pulse">
+                <div class="w-[850px] h-[850px] bg-gradient-to-r from-yellow-400/10 via-pink-500/10 to-cyan-400/10 blur-[120px] rounded-full"></div>
+            </div>
+
+            <!-- Giant Mascot Screen (hidden for multi-winner mode) -->
+            <div id="winnerMascotContainer" class="w-48 h-48 mb-4 flex items-center justify-center opacity-0 transition-opacity duration-500">
+                <i class="fa-solid fa-face-smile-wink text-[8rem] text-yellow-400 filter drop-shadow-[0_0_25px_rgba(234,179,8,0.75)]" id="defaultMascot"></i>
+                <img id="customMascot" class="hidden w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(234,179,8,0.55)]" />
+            </div>
+
+            <!-- SINGLE WINNER VIEW -->
+            <div id="singleWinnerView">
+                <div id="winnerName" class="font-black my-4 tracking-wider text-yellow-400 winner-text-animated leading-tight select-text text-center"></div>
+                <p class="text-slate-200 text-sm font-semibold tracking-wider bg-black/40 px-8 py-2 rounded-full border border-slate-800/60 shadow-md">ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!</p>
+            </div>
+
+            <!-- MULTI WINNER VIEW -->
+            <div id="multiWinnerView" class="hidden w-full">
+                <div class="text-center mb-3">
+                    <span id="multiWinnerBadge" class="inline-block text-xs font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/50 px-4 py-1 rounded-full tracking-wider"></span>
+                </div>
+                <p class="text-slate-300 text-sm font-semibold mb-4">ຜູ້ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!</p>
+                <!-- Winner name cards grid -->
+                <div id="multiWinnerGrid" class="grid gap-3 w-full max-h-[55vh] overflow-y-auto px-2 py-1"></div>
+            </div>
+
+            <!-- Confirm Button -->
+            <button onclick="closeWinnerModal()" id="confirmWinnerBtn" class="mt-8 px-12 py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-black rounded-full transition transform hover:scale-105 active:scale-95 shadow-[0_0_35px_rgba(245,158,11,0.6)] text-sm md:text-base">
+                ຢືນຢັນ (Spacebar)
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        
+        // --- DATA STATE MANAGEMENT ---
+        let appState = {
+            names: ["ສຸວັນນີ", "ສົມພອນ", "ພອນໄຊ", "ອານຸສອນ", "ແກ້ວມະນີ", "ວິໄລ", "ບຸນທອນ", "ນົງນຸດ", "ພຸດທະສອນ", "ທິບພະຈັນ"],
+            defaultNames: ["ສຸວັນນີ", "ສົມພອນ", "ພອນໄຊ", "ອານຸສອນ", "ແກ້ວມະນີ", "ວິໄລ", "ບຸນທອນ", "ນົງນຸດ", "ພຸດທະສອນ", "ທິບພະຈັນ"],
+            winners: [],
+            drawMode: 'wheel',
+            wheelTheme: 'casino',
+            cardCount: 8,
+            drawDuration: 5,
+            removeWinner: true,
+            logoData: null, logoImg: null,
+            mascotData: null,
+            effectType: 'confetti',
+            customParticleImg: null,
+            customParticleData: null,   // raw DataURL for saving
+            bgImgData: null,
+            tickSoundData: null,        // raw DataURL for saving
+            winSoundData: null,         // raw DataURL for saving
+            winnersPerRound: 1
+        };
+
+        // Getter/setter wrapper for isDrawing to automatically toggle the premium button state
+        let _isDrawing = false;
+        Object.defineProperty(appState, 'isDrawing', {
+            get: function() { return _isDrawing; },
+            set: function(val) {
+                _isDrawing = val;
+                setButtonGeneratingState(val);
+            }
+        });
+
+        let physicsState = {
+            rotation: 0,
+            velocity: 0,
+            isDragging: false,
+            startAngle: 0,
+            lastAngle: 0,
+            lastTime: 0
+        };
+
+        let templates = {};
+        try {
+            templates = JSON.parse(localStorage.getItem('lucky_draw_all_templates')) || {};
+        } catch (e) {
+            console.warn("Storage is blocked, templates will not persist.");
+        }
+
+        // --- SAFE AUDIO CONTEXT ON-DEMAND ENGINE ---
+        let audioCtx = null;
+        let decodedTickBuffer = null;
+        let decodedWinBuffer = null;
+        
+        let activeSpinSource = null; // Track looping sound instance
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.error("Web Audio API is not supported in this browser environment.", e);
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Play Continuous Loop Spinning Audio (No Overlaps)
+        function startSpinningSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+
+            stopSpinningSound(); // Ensure cleanup
+
+            if (decodedTickBuffer) {
+                try {
+                    activeSpinSource = audioCtx.createBufferSource();
+                    activeSpinSource.buffer = decodedTickBuffer;
+                    activeSpinSource.loop = true; // Continuous loop
+                    
+                    let gainNode = audioCtx.createGain();
+                    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    
+                    activeSpinSource.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    activeSpinSource.start(0);
+                } catch(e) {
+                    console.error("Error playing loop spinning sound", e);
+                }
+            } else {
+                // Fallback elegant continuous synthesizer frequency loop
+                try {
+                    activeSpinSource = audioCtx.createOscillator();
+                    activeSpinSource.type = 'triangle';
+                    activeSpinSource.frequency.setValueAtTime(160, audioCtx.currentTime);
+                    
+                    let gainNode = audioCtx.createGain();
+                    gainNode.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                    
+                    activeSpinSource.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    activeSpinSource.start(0);
+                } catch(e) { console.warn(e); }
+            }
+        }
+
+        // Instant Cutoff Spinning Audio on Win
+        function stopSpinningSound() {
+            if (activeSpinSource) {
+                try {
+                    activeSpinSource.stop();
+                } catch(e) {}
+                activeSpinSource = null;
+            }
+        }
+
+        function playWinnerSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+
+            if (decodedWinBuffer) {
+                try {
+                    let source = audioCtx.createBufferSource();
+                    source.buffer = decodedWinBuffer;
+                    source.connect(audioCtx.destination);
+                    source.start(0);
+                    return;
+                } catch(e) { console.error("Error playing custom win sound", e); }
+            }
+
+            // Fallback victory synth sound
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.15);
+                osc.frequency.setValueAtTime(783, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) { console.warn(e); }
+        }
+
+        function playSound(type) {
+            initAudioContext();
+            if (!audioCtx) return;
+            // Kept for basic key events if necessary
+            if (type === 'start') {
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(750, audioCtx.currentTime + 0.5);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                } catch(e) {}
+            }
+        }
+
+        // Custom Wood Clattering sound for Esiimsi Bamboo container
+        function playWoodRattleSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            try {
+                let now = audioCtx.currentTime;
+                for (let i = 0; i < 18; i++) {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(120 + Math.random() * 160, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.12, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.06);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.07);
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        // --- Custom Binary Audio Decoders ---
+        // Helper: set upload status badge
+        function setUploadStatus(statusId, nameId, filename) {
+            const el = document.getElementById(statusId);
+            const nameEl = document.getElementById(nameId);
+            if (el && nameEl) {
+                nameEl.innerText = filename.length > 28 ? filename.substring(0, 25) + '...' : filename;
+                el.classList.remove('hidden');
+            }
+        }
+
+        function handleSoundTick(event) {
+            initAudioContext();
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                appState.tickSoundData = dataUrl;  // store for template save
+                // Convert DataURL to ArrayBuffer for Web Audio
+                const base64 = dataUrl.split(',')[1];
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                initAudioContext();
+                if (audioCtx) {
+                    audioCtx.decodeAudioData(bytes.buffer, function(buffer) {
+                        decodedTickBuffer = buffer;
+                    }, function(err) { console.error('Error decoding tick audio', err); });
+                }
+                setUploadStatus('tickUploadStatus', 'tickUploadName', file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSoundWin(event) {
+            initAudioContext();
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                appState.winSoundData = dataUrl;   // store for template save
+                const base64 = dataUrl.split(',')[1];
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                initAudioContext();
+                if (audioCtx) {
+                    audioCtx.decodeAudioData(bytes.buffer, function(buffer) {
+                        decodedWinBuffer = buffer;
+                    }, function(err) { console.error('Error decoding win audio', err); });
+                }
+                setUploadStatus('winSoundUploadStatus', 'winSoundUploadName', file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Helper: decode a stored audio DataURL into an AudioBuffer
+        function decodeAudioDataUrl(dataUrl, callback) {
+            initAudioContext();
+            if (!audioCtx || !dataUrl) return;
+            const base64 = dataUrl.split(',')[1];
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            audioCtx.decodeAudioData(bytes.buffer, callback, function(err) { console.error('Audio decode error', err); });
+        }
+
+        // --- OVERFRONT PARALLEX FALLING EFFECT (SLOWER & LARGER) ---
+        const effectsCanvas = document.getElementById('effectsCanvas');
+        const effectsCtx = effectsCanvas.getContext('2d');
+        let particles = [];
+        let particlesActive = false;
+
+        function resizeEffectsCanvas() {
+            effectsCanvas.width = window.innerWidth;
+            effectsCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', () => {
+            resizeEffectsCanvas();
+            if (appState.drawMode === 'slot') {
+                createSlotLedLights();
+            }
+        });
+        resizeEffectsCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * effectsCanvas.width;
+                this.y = Math.random() * -100 - 50;
+                this.size = Math.random() * 16 + 12; // Adjusted size
+                this.speedY = Math.random() * 2 + 1.5; // SLOWER
+                this.speedX = Math.random() * 2 - 1;
+                this.rotation = Math.random() * 360;
+                this.spinSpeed = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 95%, 65%)`;
+                this.type = appState.effectType;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.spinSpeed;
+                if (this.y > effectsCanvas.height) {
+                    this.y = Math.random() * -100 - 50;
+                    this.x = Math.random() * effectsCanvas.width;
+                }
+            }
+            draw() {
+                effectsCtx.save();
+                effectsCtx.globalAlpha = 0.65; // Translucent waterfall
+                effectsCtx.translate(this.x, this.y);
+                effectsCtx.rotate((this.rotation * Math.PI) / 180);
+                if (this.type === 'confetti') {
+                    effectsCtx.fillStyle = this.color;
+                    effectsCtx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                } else if (this.type === 'bitcoin') {
+                    effectsCtx.fillStyle = '#fbbf24';
+                    effectsCtx.strokeStyle = '#b45309';
+                    effectsCtx.lineWidth = 3;
+                    effectsCtx.beginPath(); effectsCtx.arc(0, 0, this.size/2, 0, Math.PI*2); effectsCtx.fill(); effectsCtx.stroke();
+                    effectsCtx.fillStyle = '#fff'; effectsCtx.font = 'bold 16px sans-serif'; effectsCtx.fillText('฿', -5, 5);
+                } else if (this.type === 'customParticle' && appState.customParticleImg) {
+                    effectsCtx.drawImage(appState.customParticleImg, -this.size/2, -this.size/2, this.size, this.size);
+                } else if (this.type === 'flowers') {
+                    effectsCtx.fillStyle = '#f43f5e';
+                    for (let i = 0; i < 5; i++) {
+                        effectsCtx.rotate(Math.PI / 2.5);
+                        effectsCtx.beginPath(); effectsCtx.arc(this.size/3, 0, this.size/4, 0, Math.PI*2); effectsCtx.fill();
+                    }
+                    effectsCtx.fillStyle = '#fef08a';
+                    effectsCtx.beginPath(); effectsCtx.arc(0, 0, this.size/5, 0, Math.PI*2); effectsCtx.fill();
+                } else if (this.type === 'food') {
+                    effectsCtx.fillStyle = '#f97316';
+                    effectsCtx.beginPath(); effectsCtx.moveTo(0,0); effectsCtx.arc(0,0, this.size/2, 0, Math.PI/3); effectsCtx.closePath(); effectsCtx.fill();
+                }
+                effectsCtx.restore();
+            }
+        }
+
+        function triggerCelebration() {
+            // Safe Canvas display enabling
+            effectsCanvas.style.display = 'block';
+            particles = [];
+            for (let i = 0; i < 45; i++) particles.push(new Particle());
+            particlesActive = true;
+            animateParticles();
+        }
+
+        function animateParticles() {
+            if (!particlesActive) return;
+            effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+
+        function stopCelebration() {
+            particlesActive = false;
+            effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
+            effectsCanvas.style.display = 'none'; // Safe Canvas hiding to prevent overlap blocking
+        }
+
+        // --- CHROME & GOLD ARC REFLEXIVE WHEEL ---
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const wheelCtx = wheelCanvas.getContext('2d');
+
+        function drawWheel() {
+            const segments = appState.names;
+            const numSegs = segments.length;
+            const centerX = wheelCanvas.width / 2;
+            const centerY = wheelCanvas.height / 2;
+            const radius = centerX - 40;
+
+            if (numSegs === 0) {
+                wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+                wheelCtx.fillStyle = '#475569';
+                wheelCtx.font = "bold 24px 'Noto Sans Lao', sans-serif";
+                wheelCtx.textBaseline = 'middle';
+                wheelCtx.textAlign = 'center';
+                wheelCtx.fillText('ບໍ່ມີລາຍຊື່ (No Names)', centerX, centerY);
+                return;
+            }
+
+            const arc = (2 * Math.PI) / numSegs;
+
+            wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+            // Metallic Gold Bezel Outer Frame Rim
+            const frameGrad = wheelCtx.createRadialGradient(centerX, centerY, radius, centerX, centerY, radius + 25);
+            if (appState.wheelTheme === 'casino') {
+                frameGrad.addColorStop(0, '#5a4a2a');
+                frameGrad.addColorStop(0.3, '#d9a74a');
+                frameGrad.addColorStop(0.5, '#fff6d5'); 
+                frameGrad.addColorStop(0.7, '#d9a74a');
+                frameGrad.addColorStop(1, '#020617');
+            } else if (appState.wheelTheme === 'cyberpunk') {
+                frameGrad.addColorStop(0, '#0284c7');
+                frameGrad.addColorStop(0.5, '#c084fc');
+                frameGrad.addColorStop(1, '#020510');
+            } else {
+                frameGrad.addColorStop(0, '#271206');
+                frameGrad.addColorStop(0.4, '#7c2d12');
+                frameGrad.addColorStop(0.6, '#b45309');
+                frameGrad.addColorStop(1, '#1e0c03');
+            }
+
+            wheelCtx.beginPath();
+            wheelCtx.arc(centerX, centerY, radius + 20, 0, 2 * Math.PI);
+            wheelCtx.lineWidth = 24;
+            wheelCtx.strokeStyle = frameGrad;
+            wheelCtx.stroke();
+
+            // Draw Segments
+            for (let i = 0; i < numSegs; i++) {
+                const angle = i * arc + physicsState.rotation;
+                const segmentGrad = wheelCtx.createRadialGradient(centerX, centerY, 10, centerX, centerY, radius);
+                
+                if (appState.wheelTheme === 'casino') {
+                    if (i % 2 === 0) {
+                        segmentGrad.addColorStop(0, '#020617');
+                        segmentGrad.addColorStop(1, '#0f172a');
+                    } else {
+                        segmentGrad.addColorStop(0, '#450a0a');
+                        segmentGrad.addColorStop(1, '#7f1d1d');
+                    }
+                } else if (appState.wheelTheme === 'cyberpunk') {
+                    if (i % 2 === 0) {
+                        segmentGrad.addColorStop(0, '#090d16');
+                        segmentGrad.addColorStop(1, '#1e1b4b');
+                    } else {
+                        segmentGrad.addColorStop(0, '#020617');
+                        segmentGrad.addColorStop(1, '#172554');
+                    }
+                } else {
+                    if (i % 2 === 0) {
+                        segmentGrad.addColorStop(0, '#1c1917');
+                        segmentGrad.addColorStop(1, '#44403c');
+                    } else {
+                        segmentGrad.addColorStop(0, '#451a03');
+                        segmentGrad.addColorStop(1, '#78350f');
+                    }
+                }
+
+                wheelCtx.beginPath();
+                wheelCtx.moveTo(centerX, centerY);
+                wheelCtx.arc(centerX, centerY, radius, angle, angle + arc);
+                wheelCtx.closePath();
+                wheelCtx.fillStyle = segmentGrad;
+                wheelCtx.fill();
+
+                // Division borders
+                wheelCtx.strokeStyle = appState.wheelTheme === 'casino' ? 'rgba(217, 167, 74, 0.4)' : (appState.wheelTheme === 'cyberpunk' ? 'rgba(34, 211, 238, 0.4)' : 'rgba(245, 158, 11, 0.3)');
+                wheelCtx.lineWidth = numSegs > 100 ? 0.5 : 2;
+                wheelCtx.stroke();
+
+                // Label Text Positioning
+                wheelCtx.save();
+                wheelCtx.translate(centerX, centerY);
+                wheelCtx.rotate(angle + arc/2);
+                wheelCtx.textAlign = "right";
+                wheelCtx.textBaseline = "middle";
+
+                if (appState.wheelTheme === 'casino') {
+                    wheelCtx.fillStyle = '#f8fafc';
+                } else if (appState.wheelTheme === 'cyberpunk') {
+                    wheelCtx.fillStyle = '#22d3ee';
+                } else {
+                    wheelCtx.fillStyle = '#fef08a';
+                }
+
+                const baseSize = Math.max(7, 20 - (numSegs / 9));
+                wheelCtx.font = `600 ${baseSize}px 'Noto Sans Lao', sans-serif`;
+
+                const maxLabelWidth = radius - 80;
+                let text = segments[i];
+                if (wheelCtx.measureText(text).width > maxLabelWidth) {
+                    while (wheelCtx.measureText(text + "...").width > maxLabelWidth && text.length > 0) {
+                        text = text.slice(0, -1);
+                    }
+                    text += "...";
+                }
+
+                if (numSegs <= 140 || i % Math.ceil(numSegs / 120) === 0) {
+                    wheelCtx.fillText(text, radius - 35, 0);
+                }
+                wheelCtx.restore();
+            }
+
+            // Pivot Hub
+            const innerGrad = wheelCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 60);
+            innerGrad.addColorStop(0, '#f8fafc');
+            innerGrad.addColorStop(0.4, '#cbd5e1');
+            innerGrad.addColorStop(0.8, '#475569');
+            innerGrad.addColorStop(1, '#0f172a');
+
+            wheelCtx.beginPath();
+            wheelCtx.arc(centerX, centerY, 65, 0, 2 * Math.PI);
+            wheelCtx.fillStyle = innerGrad;
+            wheelCtx.strokeStyle = appState.wheelTheme === 'casino' ? '#d9a74a' : '#22d3ee';
+            wheelCtx.lineWidth = 4;
+            wheelCtx.fill();
+            wheelCtx.stroke();
+
+            // Render Center Logo
+            if (appState.logoImg && appState.logoImg.complete) {
+                wheelCtx.save();
+                wheelCtx.beginPath();
+                wheelCtx.arc(centerX, centerY, 58, 0, Math.PI * 2);
+                wheelCtx.clip();
+                wheelCtx.drawImage(appState.logoImg, centerX - 58, centerY - 58, 116, 116);
+                wheelCtx.restore();
+            } else {
+                wheelCtx.fillStyle = '#0f172a';
+                wheelCtx.font = "bold 18px 'Noto Sans Lao', sans-serif";
+                wheelCtx.textBaseline = 'middle';
+                wheelCtx.textAlign = 'center';
+                wheelCtx.fillText('SPIN', centerX, centerY);
+            }
+        }
+
+        // --- MOUSE WHEEL DRAGGING PHYSICS ---
+        function handleWheelDragStart(e) {
+            initAudioContext();
+            if (appState.isDrawing) return;
+            physicsState.isDragging = true;
+            physicsState.velocity = 0;
+            const rect = wheelCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - wheelCanvas.width / 2;
+            const mouseY = e.clientY - rect.top - wheelCanvas.height / 2;
+            physicsState.startAngle = Math.atan2(mouseY, mouseX) - physicsState.rotation;
+            physicsState.lastAngle = physicsState.rotation;
+            physicsState.lastTime = Date.now();
+        }
+
+        function handleWheelDrag(e) {
+            if (!physicsState.isDragging) return;
+            const rect = wheelCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - wheelCanvas.width / 2;
+            const mouseY = e.clientY - rect.top - wheelCanvas.height / 2;
+            const currentAngle = Math.atan2(mouseY, mouseX);
+            
+            physicsState.rotation = currentAngle - physicsState.startAngle;
+            drawWheel();
+
+            // SENSOR TICK SOUND HAS BEEN REMOVED TO PREVENT OVERLAPPING (per user directive)
+
+            const now = Date.now();
+            const timeDiff = now - physicsState.lastTime;
+            if (timeDiff > 10) {
+                physicsState.velocity = (physicsState.rotation - physicsState.lastAngle) / timeDiff * 16.66;
+                physicsState.lastAngle = physicsState.rotation;
+                physicsState.lastTime = now;
+            }
+        }
+
+        function handleWheelDragEnd() {
+            if (!physicsState.isDragging) return;
+            physicsState.isDragging = false;
+            if (Math.abs(physicsState.velocity) > 0.5) {
+                startWheelSpinWithPhysics(physicsState.velocity);
+            }
+        }
+
+        let wheelAnimationId = null;
+        function runPhysicsWheelDecelerationTimeBased(startTime, duration, startRotation, totalAngle) {
+            const elapsed = Date.now() - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            
+            // Ease-out cubic formula
+            const easeOutCubic = 1 - Math.pow(1 - t, 3);
+            
+            physicsState.rotation = startRotation + totalAngle * easeOutCubic;
+            drawWheel();
+            
+            if (t < 1) {
+                wheelAnimationId = requestAnimationFrame(() => runPhysicsWheelDecelerationTimeBased(startTime, duration, startRotation, totalAngle));
+            } else {
+                appState.isDrawing = false;
+                const arc = (2 * Math.PI) / appState.names.length;
+                let normalizedRotation = physicsState.rotation % (2 * Math.PI);
+                if (normalizedRotation < 0) normalizedRotation += 2 * Math.PI;
+                
+                let pointerAngle = (1.5 * Math.PI) - normalizedRotation;
+                while (pointerAngle < 0) pointerAngle += 2 * Math.PI;
+                pointerAngle = pointerAngle % (2 * Math.PI);
+
+                const winningIndex = Math.floor(pointerAngle / arc) % appState.names.length;
+                announceWinner(appState.names[winningIndex]);
+            }
+        }
+
+        function startWheelSpinWithPhysics(velocity) {
+            appState.isDrawing = true;
+            startSpinningSound();
+            
+            const startTime = Date.now();
+            const duration = appState.drawDuration * 1000;
+            const startRotation = physicsState.rotation;
+            
+            let totalAngle;
+            if (velocity !== undefined && Math.abs(velocity) > 0.5) {
+                const direction = Math.sign(velocity);
+                const baseSpin = (8 + Math.random() * 4) * 2 * Math.PI;
+                const velocityBonus = Math.abs(velocity) * 5;
+                totalAngle = direction * (baseSpin + velocityBonus);
+            } else {
+                totalAngle = (10 + Math.random() * 5) * 2 * Math.PI;
+            }
+            
+            runPhysicsWheelDecelerationTimeBased(startTime, duration, startRotation, totalAngle);
+        }
+
+        // --- SLOT MACHINE ENGINE ---
+        const slotCanvas = document.getElementById('slotCanvas');
+        const slotCtx = slotCanvas.getContext('2d');
+        let slotOffset = 0;
+        let slotVelocity = 0;
+        let isSlotSpinning = false;
+
+        function createSlotLedLights() {
+            const container = document.getElementById('slotLedFrame');
+            if (!container) return;
+            
+            const existingLights = container.querySelectorAll('.led-light-bulb');
+            existingLights.forEach(el => el.remove());
+            
+            const w = container.clientWidth || 920;
+            const h = container.clientHeight || 400;
+            
+            const cols = 20;
+            for (let i = 0; i < cols; i++) {
+                createDot(i * (w / (cols - 1)), -14, i);
+            }
+            for (let i = 0; i < cols; i++) {
+                createDot(i * (w / (cols - 1)), h + 4, i);
+            }
+            const rows = 10;
+            for (let i = 1; i < rows - 1; i++) {
+                createDot(-14, i * (h / (rows - 1)), i);
+            }
+            for (let i = 1; i < rows - 1; i++) {
+                createDot(w + 4, i * (h / (rows - 1)), i + 1);
+            }
+            
+            function createDot(x, y, index) {
+                const dot = document.createElement('div');
+                dot.className = `led-light-bulb absolute w-3.5 h-3.5 rounded-full border border-black/45 z-20 ` + (index % 2 === 0 ? 'led-dot-odd' : 'led-dot-even');
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                container.appendChild(dot);
+            }
+        }
+
+        function drawSlotMachine(blur = false) {
+            const w = slotCanvas.width;
+            const h = slotCanvas.height;
+            const rowHeight = 110;
+            slotCtx.clearRect(0, 0, w, h);
+
+            if (appState.names.length === 0) {
+                slotCtx.fillStyle = '#475569';
+                slotCtx.font = "bold 32px 'Noto Sans Lao', sans-serif";
+                slotCtx.textAlign = "center";
+                slotCtx.textBaseline = "middle";
+                slotCtx.fillText('ບໍ່ມີລາຍຊື່ (No Names)', w / 2, h / 2);
+                return;
+            }
+
+            slotCtx.save();
+            for (let i = -3; i < 5; i++) {
+                const index = (Math.floor(slotOffset / rowHeight) + i) % appState.names.length;
+                const safeIndex = index < 0 ? appState.names.length + index : index;
+                const name = appState.names[safeIndex] || '';
+
+                const yOffset = (slotOffset % rowHeight) + (i * rowHeight);
+                const cy = h / 2;
+                const distFromCenter = yOffset - cy;
+                const projectionAngle = (distFromCenter / h) * (Math.PI / 2);
+                
+                const projectedY = cy + Math.sin(projectionAngle) * (h / 1.4);
+                const scale = Math.cos(projectionAngle);
+                
+                if (scale <= 0) continue;
+
+                slotCtx.save();
+                slotCtx.translate(w / 2, projectedY);
+                slotCtx.scale(scale, scale);
+                
+                const alpha = Math.max(0, scale - 0.2);
+                slotCtx.fillStyle = `rgba(34, 211, 238, ${alpha})`;
+                slotCtx.font = "bold 44px 'Noto Sans Lao', sans-serif";
+                if (Math.abs(distFromCenter) < 50) {
+                    slotCtx.fillStyle = `rgba(234, 179, 8, ${alpha})`;
+                    slotCtx.font = "bold 60px 'Noto Sans Lao', sans-serif";
+                }
+                slotCtx.textAlign = "center";
+                slotCtx.textBaseline = "middle";
+
+                if (blur) {
+                    slotCtx.shadowBlur = 24;
+                    slotCtx.shadowColor = 'rgba(34,211,238,0.7)';
+                }
+                
+                slotCtx.fillText(name, 0, 0);
+                slotCtx.restore();
+            }
+            slotCtx.restore();
+        }
+
+        function pullSlotLever() {
+            initAudioContext();
+            if (appState.isDrawing) return;
+            const lever = document.getElementById('slotLever');
+            lever.classList.add('lever-pulled');
+            setTimeout(() => {
+                lever.classList.remove('lever-pulled');
+                startDraw();
+            }, 300);
+        }
+
+        function runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset) {
+            const elapsed = Date.now() - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            
+            // Ease-out cubic formula
+            const easeOutCubic = 1 - Math.pow(1 - t, 3);
+            
+            slotOffset = startOffset + totalOffset * easeOutCubic;
+            drawSlotMachine(t < 0.8);
+            
+            if (t < 1) {
+                requestAnimationFrame(() => runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset));
+            } else {
+                isSlotSpinning = false;
+                const rowHeight = 110;
+                slotOffset = Math.round(slotOffset / rowHeight) * rowHeight;
+                drawSlotMachine(false);
+                
+                const centerIndex = Math.round(slotOffset / rowHeight) % appState.names.length;
+                const winnerIndex = centerIndex < 0 ? appState.names.length + centerIndex : centerIndex;
+                const winner = appState.names[winnerIndex];
+                
+                setTimeout(() => announceWinner(winner), 400);
+            }
+        }
+
+        // --- CARDS GRID ---
+        function setupCardsGrid() {
+            const container = document.getElementById('cardContainer');
+            container.innerHTML = '';
+            
+            if (appState.names.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10">ບໍ່ມີລາຍຊື່ (No Names Left)</div>`;
+                return;
+            }
+            
+            const maxVisible = Math.min(appState.names.length, appState.cardCount);
+            
+            let colClass = "grid-cols-4";
+            if (maxVisible > 12) colClass = "grid-cols-6";
+            if (maxVisible > 18) colClass = "grid-cols-8";
+            
+            container.className = `w-full max-w-5xl grid ${colClass} gap-4 p-4 overflow-y-auto max-h-[75vh]`;
+
+            for (let i = 0; i < maxVisible; i++) {
+                const card = document.createElement('div');
+                card.className = "card-perspective aspect-[3/4] cursor-pointer w-full relative h-40";
+                
+                let cardBackHTML = `<div class="card-back absolute inset-0 bg-slate-850 rounded-2xl flex items-center justify-center border-2 border-slate-700 shadow-xl">`;
+                if (appState.logoData) {
+                    cardBackHTML += `<img src="${appState.logoData}" class="w-16 h-16 object-contain" />`;
+                } else {
+                    cardBackHTML += `<i class="fa-solid fa-cube text-4xl text-blue-500"></i>`;
+                }
+                cardBackHTML += `</div>`;
+
+                card.innerHTML = `
+                    <div class="card-inner w-full h-full relative transform-style-preserve-3d duration-700">
+                        ${cardBackHTML}
+                        <div class="card-front absolute inset-0 bg-gradient-to-br from-blue-900 to-indigo-950 rounded-2xl flex flex-col items-center justify-center border-4 border-yellow-400 p-2 text-center shadow-2xl backface-hidden">
+                            <i class="fa-solid fa-crown text-yellow-400 text-3xl mb-2 animate-bounce"></i>
+                            <span class="text-white text-xs font-bold break-words w-full" id="cardName-${i}">???</span>
+                        </div>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    initAudioContext();
+                    if (appState.isDrawing) return;
+                    appState.isDrawing = true;
+                    playWinnerSound(); // Play only winning sound without overlapping loops
+
+                    const inner = card.querySelector('.card-inner');
+                    const winner = appState.names[Math.floor(Math.random() * appState.names.length)];
+                    document.getElementById(`cardName-${i}`).innerText = winner;
+
+                    inner.classList.add('card-flipped');
+
+                    setTimeout(() => {
+                        announceWinner(winner);
+                        setTimeout(() => {
+                            inner.classList.remove('card-flipped');
+                        }, 1200);
+                    }, appState.drawDuration * 1000);
+                };
+
+                container.appendChild(card);
+            }
+        }
+
+        // --- CHINESE ESIIMSI DRAW SEQUENCER ---
+        function runEsiimsiDrawSequence() {
+            playWoodRattleSound();
+
+            const cup = document.getElementById('esiimsiCup');
+            const stick = document.getElementById('esiimsiWinningStick');
+            const winnerText = document.getElementById('esiimsiWinnerName');
+
+            stick.classList.add('hidden');
+            cup.classList.add('animate-cup-shake');
+
+            setTimeout(() => {
+                cup.classList.remove('animate-cup-shake');
+                
+                const winner = appState.names[Math.floor(Math.random() * appState.names.length)];
+                winnerText.innerText = winner;
+                
+                stick.classList.remove('hidden');
+                stick.style.transform = "translateY(-220px) rotate(10deg)";
+                
+                setTimeout(() => {
+                    announceWinner(winner);
+                    setTimeout(() => {
+                        stick.style.transform = "none";
+                        stick.classList.add('hidden');
+                    }, 1000);
+                }, 1300);
+            }, appState.drawDuration * 1000);
+        }
+
+        // --- GESTURE SYSTEM ---
+        let handsTracker = null;
+        let camSource = null;
+
+        function toggleGestureControl(isActive) {
+            const container = document.getElementById('gesturePreviewContainer');
+            const cursorEl = document.getElementById('virtualCursor');
+            if (isActive) {
+                container.classList.remove('hidden');
+                cursorEl.style.display = 'block';
+                initHandTracking();
+            } else {
+                container.classList.add('hidden');
+                cursorEl.style.display = 'none';
+                if (camSource) camSource.stop();
+            }
+        }
+
+        function initHandTracking() {
+            const videoElement = document.getElementById('webcam');
+            const statusText = document.getElementById('gestureStatus');
+            const cursorEl = document.getElementById('virtualCursor');
+
+            let curX = 0, curY = 0;
+            let grabLocked = false;
+
+            handsTracker = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+
+            handsTracker.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.65,
+                minTrackingConfidence: 0.65
+            });
+
+            handsTracker.onResults((results) => {
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    const landmarks = results.multiHandLandmarks[0];
+                    statusText.innerText = "ກວດພົບມື...";
+
+                    const indexPoint = landmarks[8];
+                    const thumbPoint = landmarks[4];
+
+                    const destX = (1 - indexPoint.x) * window.innerWidth;
+                    const destY = indexPoint.y * window.innerHeight;
+
+                    curX += (destX - curX) * 0.35;
+                    curY += (destY - curY) * 0.35;
+
+                    cursorEl.style.left = `${curX}px`;
+                    cursorEl.style.top = `${curY}px`;
+
+                    const distance = Math.hypot(thumbPoint.x - indexPoint.x, thumbPoint.y - indexPoint.y);
+                    
+                    if (distance < 0.05) {
+                        cursorEl.className = "fa-solid fa-hand-fist text-teal-400 text-3xl";
+                        
+                        if (appState.drawMode === 'wheel' && !appState.isDrawing) {
+                            const rect = wheelCanvas.getBoundingClientRect();
+                            const relativeX = curX - rect.left - wheelCanvas.width / 2;
+                            const relativeY = curY - rect.top - wheelCanvas.height / 2;
+                            const distFromWheelCenter = Math.hypot(relativeX, relativeY);
+
+                            if (distFromWheelCenter < wheelCanvas.width / 2) {
+                                if (!grabLocked) {
+                                    grabLocked = true;
+                                    physicsState.isDragging = true;
+                                    physicsState.startAngle = Math.atan2(relativeY, relativeX) - physicsState.rotation;
+                                    physicsState.lastAngle = physicsState.rotation;
+                                    physicsState.lastTime = Date.now();
+                                } else {
+                                    const currentAngle = Math.atan2(relativeY, relativeX);
+                                    physicsState.rotation = currentAngle - physicsState.startAngle;
+                                    drawWheel();
+
+                                    const now = Date.now();
+                                    const timeDiff = now - physicsState.lastTime;
+                                    if (timeDiff > 10) {
+                                        physicsState.velocity = (physicsState.rotation - physicsState.lastAngle) / timeDiff * 16.66;
+                                        physicsState.lastAngle = physicsState.rotation;
+                                        physicsState.lastTime = now;
+                                    }
+                                }
+                            }
+                        } else {
+                            const targetEl = document.elementFromPoint(curX, curY);
+                            if (targetEl && !appState.isDrawing) targetEl.click();
+                        }
+                    } else {
+                        cursorEl.className = "fa-solid fa-hand text-cyan-400 text-3xl";
+                        if (grabLocked) {
+                            grabLocked = false;
+                            physicsState.isDragging = false;
+                            if (Math.abs(physicsState.velocity) > 0.5) {
+                                startWheelSpinWithPhysics(physicsState.velocity);
+                            }
+                        }
+                    }
+                } else {
+                    statusText.innerText = "ບໍ່ພົບມື";
+                }
+            });
+
+            camSource = new Camera(videoElement, {
+                onFrame: async () => {
+                    await handsTracker.send({ image: videoElement });
+                },
+                width: 160,
+                height: 120
+            });
+            camSource.start();
+        }
+
+        // --- STABLE SETTINGS TAB AND DESIGN HANDLERS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(`btn-${tabId}`).classList.add('bg-slate-800', 'text-white');
+        }
+
+        function setDrawMode(mode) {
+            appState.drawMode = mode;
+            setDrawModeUI(mode);
+        }
+
+        function setButtonGeneratingState(generating) {
+            const btn = document.getElementById('drawActionBtn');
+            const idleLabel = document.getElementById('btnLabelIdle');
+            const activeLabel = document.getElementById('btnLabelActive');
+            
+            if (!btn || !idleLabel || !activeLabel) return;
+            
+            if (generating) {
+                btn.disabled = true;
+                
+                // Idle Label Transition Out
+                idleLabel.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                idleLabel.classList.add('translate-y-4', 'opacity-0', 'scale-95', 'pointer-events-none');
+                
+                // Active Label Transition In
+                activeLabel.classList.remove('-translate-y-4', 'opacity-0', 'scale-95', 'pointer-events-none');
+                activeLabel.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+            } else {
+                btn.disabled = false;
+                
+                // Idle Label Transition In
+                idleLabel.classList.remove('translate-y-4', 'opacity-0', 'scale-95', 'pointer-events-none');
+                idleLabel.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                
+                // Active Label Transition Out
+                activeLabel.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                activeLabel.classList.add('-translate-y-4', 'opacity-0', 'scale-95', 'pointer-events-none');
+            }
+        }
+
+        function setDrawModeUI(mode) {
+            document.getElementById('wheelContainer').classList.add('hidden');
+            document.getElementById('slotContainer').classList.add('hidden');
+            document.getElementById('cardContainer').classList.add('hidden');
+            document.getElementById('esiimsiContainer').classList.add('hidden');
+            document.getElementById('wheelThemeSection').classList.add('hidden');
+            document.getElementById('cardCountSection').classList.add('hidden');
+
+            // Show or hide drawActionContainer depending on cards mode
+            const drawActionContainer = document.getElementById('drawActionContainer');
+            if (drawActionContainer) {
+                if (mode === 'cards') {
+                    drawActionContainer.classList.add('hidden');
+                } else {
+                    drawActionContainer.classList.remove('hidden');
+                }
+            }
+
+            document.querySelectorAll('.mode-select-btn').forEach(btn => {
+                btn.className = "mode-select-btn p-3 bg-slate-950 border-2 border-transparent rounded-xl text-left hover:bg-slate-850 flex items-center justify-between";
+                btn.querySelector('.check-icon').classList.add('hidden');
+            });
+            const activeBtn = document.getElementById(`mode-${mode}`);
+            if (activeBtn) {
+                activeBtn.className = "mode-select-btn p-3 bg-slate-900 border-2 border-cyan-400 rounded-xl text-left flex items-center justify-between filter drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]";
+                activeBtn.querySelector('.check-icon').classList.remove('hidden');
+            }
+
+            if (mode === 'wheel') {
+                document.getElementById('wheelContainer').classList.remove('hidden');
+                document.getElementById('wheelThemeSection').classList.remove('hidden');
+                drawWheel();
+            } else if (mode === 'slot') {
+                document.getElementById('slotContainer').classList.remove('hidden');
+                createSlotLedLights();
+                drawSlotMachine();
+            } else if (mode === 'cards') {
+                document.getElementById('cardContainer').classList.remove('hidden');
+                document.getElementById('cardCountSection').classList.remove('hidden');
+                setupCardsGrid(); 
+            } else if (mode === 'raffle') {
+                document.getElementById('esiimsiContainer').classList.remove('hidden');
+            }
+        }
+
+        function setWheelTheme(theme) {
+            appState.wheelTheme = theme;
+            document.querySelectorAll('.theme-select-btn').forEach(btn => {
+                btn.className = "theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850";
+            });
+            const activeBtn = document.getElementById(`theme-${theme}`);
+            if (activeBtn) {
+                activeBtn.className = "theme-select-btn px-3 py-2 bg-slate-900 border-2 border-cyan-400 rounded text-xs text-white filter drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]";
+            }
+            drawWheel();
+        }
+
+        function handleEffectTypeChange(val) {
+            const uploadContainer = document.getElementById('customParticleContainer');
+            if (val === 'customParticle') uploadContainer.classList.remove('hidden');
+            else uploadContainer.classList.add('hidden');
+        }
+
+        function handleCustomParticleUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appState.customParticleData = e.target.result; // store raw DataURL
+                    appState.customParticleImg = new Image();
+                    appState.customParticleImg.src = e.target.result;
+                    setUploadStatus('particleUploadStatus', 'particleUploadName', file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleBackgroundUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appState.bgImgData = e.target.result;
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                    setUploadStatus('bgUploadStatus', 'bgUploadName', file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appState.logoData = e.target.result;
+                    appState.logoImg = new Image();
+                    appState.logoImg.src = e.target.result;
+                    appState.logoImg.onload = () => {
+                        drawWheel();
+                        if (appState.drawMode === 'cards') setupCardsGrid();
+                    };
+                    setUploadStatus('logoUploadStatus', 'logoUploadName', file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleMascotUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appState.mascotData = e.target.result;
+                    document.getElementById('defaultMascot').classList.add('hidden');
+                    const img = document.getElementById('customMascot');
+                    img.src = e.target.result; img.classList.remove('hidden');
+                    setUploadStatus('mascotUploadStatus', 'mascotUploadName', file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- ALL STATES FULL SAVE TEMPLATE ---
+        function saveCurrentAsTemplate() {
+            const name = document.getElementById('newTemplateName').value.trim();
+            const rawNames = document.getElementById('namesInput').value;
+            if (!name) return alert("ກະລຸນາຕັ້ງຊື່ Template");
+            
+            const parsed = rawNames.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            
+            templates[name] = {
+                names: parsed,
+                drawMode: appState.drawMode,
+                wheelTheme: appState.wheelTheme,
+                cardCount: appState.cardCount,
+                drawDuration: appState.drawDuration,
+                winnersPerRound: appState.winnersPerRound,
+                removeWinner: appState.removeWinner,
+                effectType: appState.effectType,
+                logoData: appState.logoData,
+                mascotData: appState.mascotData,
+                bgImgData: appState.bgImgData,
+                customParticleData: appState.customParticleData,
+                tickSoundData: appState.tickSoundData,
+                winSoundData: appState.winSoundData
+            };
+            
+            try {
+                localStorage.setItem('lucky_draw_all_templates', JSON.stringify(templates));
+            } catch(e) {
+                // If quota exceeded (large media files), save without media as fallback
+                console.warn('localStorage quota exceeded, saving without media:', e);
+                const fallback = Object.assign({}, templates[name], {
+                    logoData: null, mascotData: null, bgImgData: null,
+                    customParticleData: null, tickSoundData: null, winSoundData: null
+                });
+                templates[name] = fallback;
+                try { localStorage.setItem('lucky_draw_all_templates', JSON.stringify(templates)); } catch(e2) {}
+                alert("ບັນທຶກສຳເລັດ! (ຫມາຊເຫດຸ: ໄຟລໄໂກ້/ຮູບໃຫຍ່ເກີນພື້ນທີ່ບັນທຶກ)");
+                return;
+            }
+            
+            updateTemplateSelector();
+            document.getElementById('newTemplateName').value = '';
+            alert("ບັນທຶກທຸກການຕັ້ງຄ່າລົງ Template ສຳເລັດ!");
+        }
+
+        function loadSavedTemplate(name) {
+            const data = templates[name];
+            if (data) {
+                appState.names = data.names;
+                document.getElementById('namesInput').value = data.names.join('\n');
+                
+                if (data.drawMode) appState.drawMode = data.drawMode;
+                if (data.wheelTheme) appState.wheelTheme = data.wheelTheme;
+                if (data.cardCount) appState.cardCount = data.cardCount;
+                if (data.drawDuration) appState.drawDuration = data.drawDuration;
+                if (data.winnersPerRound) {
+                    appState.winnersPerRound = data.winnersPerRound;
+                    document.getElementById('winnersPerRound').value = data.winnersPerRound;
+                } else {
+                    appState.winnersPerRound = 1;
+                    document.getElementById('winnersPerRound').value = 1;
+                }
+                if (data.effectType) {
+                    appState.effectType = data.effectType;
+                    document.getElementById('effectType').value = data.effectType;
+                    handleEffectTypeChange(data.effectType);
+                }
+                if (data.removeWinner !== undefined) {
+                    appState.removeWinner = data.removeWinner;
+                    document.getElementById('removeWinnerToggle').checked = appState.removeWinner;
+                }
+                
+                // --- Restore image media ---
+                if (data.logoData) {
+                    appState.logoData = data.logoData;
+                    appState.logoImg = new Image();
+                    appState.logoImg.src = data.logoData;
+                    appState.logoImg.onload = () => drawWheel();
+                    setUploadStatus('logoUploadStatus', 'logoUploadName', 'ໂລໂກ້ຈາກ Template');
+                }
+                if (data.mascotData) {
+                    appState.mascotData = data.mascotData;
+                    document.getElementById('defaultMascot').classList.add('hidden');
+                    const img = document.getElementById('customMascot');
+                    img.src = data.mascotData; img.classList.remove('hidden');
+                    setUploadStatus('mascotUploadStatus', 'mascotUploadName', 'Mascot ຈາກ Template');
+                }
+                if (data.bgImgData) {
+                    appState.bgImgData = data.bgImgData;
+                    document.body.style.backgroundImage = `url(${data.bgImgData})`;
+                    setUploadStatus('bgUploadStatus', 'bgUploadName', 'ພື້ຫຼັງຈາກ Template');
+                }
+                if (data.customParticleData) {
+                    appState.customParticleData = data.customParticleData;
+                    appState.customParticleImg = new Image();
+                    appState.customParticleImg.src = data.customParticleData;
+                    setUploadStatus('particleUploadStatus', 'particleUploadName', 'Particle ຈາກ Template');
+                }
+
+                // --- Restore audio media (re-decode from DataURL) ---
+                if (data.tickSoundData) {
+                    appState.tickSoundData = data.tickSoundData;
+                    decodeAudioDataUrl(data.tickSoundData, function(buffer) {
+                        decodedTickBuffer = buffer;
+                    });
+                    setUploadStatus('tickUploadStatus', 'tickUploadName', 'ສີງສົນຈາກ Template');
+                }
+                if (data.winSoundData) {
+                    appState.winSoundData = data.winSoundData;
+                    decodeAudioDataUrl(data.winSoundData, function(buffer) {
+                        decodedWinBuffer = buffer;
+                    });
+                    setUploadStatus('winSoundUploadStatus', 'winSoundUploadName', 'ສີງຊະນະຈາກ Template');
+                }
+
+                setDrawModeUI(appState.drawMode);
+                setWheelTheme(appState.wheelTheme);
+            }
+        }
+
+        function deleteTemplate() {
+            const select = document.getElementById('templateSelect');
+            const name = select.value;
+            if (name && templates[name]) {
+                delete templates[name];
+                try {
+                    localStorage.setItem('lucky_draw_all_templates', JSON.stringify(templates));
+                } catch(e) { console.warn(e); }
+                updateTemplateSelector();
+                alert("ລຶບ Template ສຳເລັດ");
+            }
+        }
+
+        function updateTemplateSelector() {
+            const select = document.getElementById('templateSelect');
+            select.innerHTML = '<option value="">-- ເລືອກລາຍຊື່ Template ທີ່ບັນທຶກໄວ້ --</option>';
+            Object.keys(templates).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key; opt.innerText = key;
+                select.appendChild(opt);
+            });
+        }
+
+        function resetNames() {
+            appState.names = [...appState.defaultNames];
+            appState.winners = [];
+            document.getElementById('namesInput').value = appState.names.join('\n');
+            updateWinnersTable();
+            updateRemainingTable();
+            drawWheel();
+            if (appState.drawMode === 'cards') setupCardsGrid();
+        }
+
+        function clearNames() {
+            document.getElementById('namesInput').value = '';
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('namesInput').value = appState.names.join('\n');
+                document.getElementById('drawDuration').value = appState.drawDuration;
+                document.getElementById('durationVal').innerText = appState.drawDuration;
+                document.getElementById('cardCountInput').value = appState.cardCount;
+                document.getElementById('winnersPerRound').value = appState.winnersPerRound || 1;
+                document.getElementById('removeWinnerToggle').checked = appState.removeWinner;
+                updateTemplateSelector();
+                updateWinnersTable();
+                
+                setDrawModeUI(appState.drawMode);
+                setWheelTheme(appState.wheelTheme);
+            }
+        }
+
+        function saveSettings() {
+            const input = document.getElementById('namesInput').value;
+            appState.names = input.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            appState.drawDuration = parseInt(document.getElementById('drawDuration').value);
+            appState.cardCount = parseInt(document.getElementById('cardCountInput').value) || 8;
+            appState.winnersPerRound = parseInt(document.getElementById('winnersPerRound').value) || 1;
+            appState.effectType = document.getElementById('effectType').value;
+            appState.removeWinner = document.getElementById('removeWinnerToggle').checked;
+
+            setDrawModeUI(appState.drawMode);
+            updateRemainingTable();
+            // toggleSettingsModal(); // Keep sidebar open on apply
+        }
+
+        function updateWinnersTable() {
+            const tbody = document.getElementById('winnersTableBody');
+            tbody.innerHTML = '';
+            appState.winners.forEach(w => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-900/40 hover:bg-slate-900/10";
+                tr.innerHTML = `<td class="p-3 text-slate-500">${w.id}</td><td class="p-3 font-semibold text-white">${w.name}</td><td class="p-3 text-slate-400 text-right">${w.time}</td>`;
+                tbody.appendChild(tr);
+            });
+            // Update badge count
+            const countEl = document.getElementById('winnerCountBadge');
+            if (countEl) {
+                countEl.innerText = appState.winners.length;
+            }
+        }
+
+        function exportWinnersToCSV() {
+            if (appState.winners.length === 0) return;
+            let csvContent = "\uFEFFID,Winner,Time\n";
+            appState.winners.forEach(w => { csvContent += `${w.id},"${w.name}",${w.time}\n`; });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "winners_history.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- WINNER ANNOUNCEMENT ---
+        function fitWinnerName(name) {
+            const nameEl = document.getElementById('winnerName');
+            nameEl.innerText = name;
+            nameEl.style.whiteSpace = 'nowrap';
+            nameEl.style.display = 'inline-block';
+            nameEl.style.maxWidth = '100%';
+            
+            const parentEl = nameEl.parentElement;
+            const parentWidth = parentEl.clientWidth * 0.95;
+            
+            let size = 96;
+            nameEl.style.fontSize = size + 'px';
+            while (nameEl.scrollWidth > parentWidth && size > 20) {
+                size -= 2;
+                nameEl.style.fontSize = size + 'px';
+            }
+        }
+
+        // Pick N unique winners from current pool
+        function pickUniqueWinners(count) {
+            const pool = [...appState.names];
+            const picked = [];
+            const n = Math.min(count, pool.length);
+            for (let i = 0; i < n; i++) {
+                const idx = Math.floor(Math.random() * pool.length);
+                picked.push(pool.splice(idx, 1)[0]);
+            }
+            return picked;
+        }
+
+        // Called by all draw modes with a single anchor name; we may expand to multi
+        function announceWinner(anchorName) {
+            stopSpinningSound();
+            appState.isDrawing = false;
+
+            const count = parseInt((document.getElementById('winnersPerRound') || {}).value) || 1;
+
+            if (count <= 1) {
+                // ---- SINGLE WINNER MODE ----
+                const record = { id: appState.winners.length + 1, name: anchorName, time: new Date().toLocaleTimeString() };
+                appState.winners.push(record);
+                updateWinnersTable();
+
+                if (appState.removeWinner) {
+                    const index = appState.names.indexOf(anchorName);
+                    if (index > -1) { appState.names.splice(index, 1); document.getElementById('namesInput').value = appState.names.join('\n'); }
+                }
+                updateRemainingTable();
+                announceWinnersDisplay([anchorName]);
+            } else {
+                // ---- MULTI WINNER MODE ----
+                // Remove anchor from the pool first so it counts, then pick remaining
+                const anchorIdx = appState.names.indexOf(anchorName);
+                const pool = [...appState.names];
+                if (anchorIdx > -1) pool.splice(anchorIdx, 1);
+
+                const extraCount = Math.min(count - 1, pool.length);
+                const extraWinners = [];
+                for (let i = 0; i < extraCount; i++) {
+                    const idx = Math.floor(Math.random() * pool.length);
+                    extraWinners.push(pool.splice(idx, 1)[0]);
+                }
+                const allWinners = [anchorName, ...extraWinners];
+
+                allWinners.forEach(name => {
+                    const record = { id: appState.winners.length + 1, name: name, time: new Date().toLocaleTimeString() };
+                    appState.winners.push(record);
+                    if (appState.removeWinner) {
+                        const index = appState.names.indexOf(name);
+                        if (index > -1) appState.names.splice(index, 1);
+                    }
+                });
+                if (appState.removeWinner) document.getElementById('namesInput').value = appState.names.join('\n');
+                updateWinnersTable();
+                updateRemainingTable();
+                announceWinnersDisplay(allWinners);
+            }
+        }
+
+        // Render the winner modal for 1 or many winners
+        function announceWinnersDisplay(winners) {
+            const singleView = document.getElementById('singleWinnerView');
+            const multiView  = document.getElementById('multiWinnerView');
+            const mascotContainer = document.getElementById('winnerMascotContainer');
+            const winnerModal = document.getElementById('winnerModal');
+
+            winnerModal.classList.remove('hidden');
+
+            if (winners.length === 1) {
+                // Show single-winner layout
+                singleView.classList.remove('hidden');
+                multiView.classList.add('hidden');
+                mascotContainer.style.display = '';
+                fitWinnerName(winners[0]);
+            } else {
+                // Show multi-winner grid layout
+                singleView.classList.add('hidden');
+                multiView.classList.remove('hidden');
+                mascotContainer.style.display = 'none';
+
+                // Badge
+                const badge = document.getElementById('multiWinnerBadge');
+                badge.innerText = `🏆 ຜູ້ຊະນະທັງໝົດ ${winners.length} ທ່ານ`;
+
+                // Build winner cards
+                const grid = document.getElementById('multiWinnerGrid');
+                grid.innerHTML = '';
+
+                // Choose grid columns based on count
+                let cols = 'grid-cols-1';
+                if (winners.length === 2) cols = 'grid-cols-2';
+                else if (winners.length >= 3 && winners.length <= 4) cols = 'grid-cols-2';
+                else if (winners.length >= 5 && winners.length <= 6) cols = 'grid-cols-3';
+                else if (winners.length >= 7) cols = 'grid-cols-3 sm:grid-cols-4';
+                grid.className = `grid ${cols} gap-3 w-full max-h-[55vh] overflow-y-auto px-2 py-1`;
+
+                winners.forEach((name, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-950/80 via-amber-950/60 to-slate-900/80 border border-yellow-600/40 rounded-2xl p-4 shadow-[0_0_20px_rgba(234,179,8,0.15)] animate-winner-card-pop';
+                    card.style.animationDelay = (i * 80) + 'ms';
+
+                    // Rank badge
+                    const rank = document.createElement('div');
+                    rank.className = 'text-xs font-bold text-amber-400 mb-2 tech-font tracking-widest';
+                    rank.innerText = `#${i + 1}`;
+
+                    // Name with auto-fit
+                    const nameEl = document.createElement('div');
+                    nameEl.className = 'font-black text-yellow-300 text-center leading-tight w-full';
+                    nameEl.innerText = name;
+                    nameEl.style.wordBreak = 'break-word';
+                    // Auto-size font: start large, shrink to fit
+                    const basePx = winners.length <= 3 ? 32 : winners.length <= 6 ? 24 : 18;
+                    nameEl.style.fontSize = basePx + 'px';
+
+                    card.appendChild(rank);
+                    card.appendChild(nameEl);
+                    grid.appendChild(card);
+                });
+            }
+
+            mascotContainer.classList.remove('animate-epic-zoom', 'opacity-0');
+            void mascotContainer.offsetWidth;
+            mascotContainer.classList.add('animate-epic-zoom');
+
+            playWinnerSound();
+            triggerCelebration();
+        }
+
+        function closeWinnerModal() {
+            document.getElementById('winnerModal').classList.add('hidden');
+            stopCelebration();
+
+            if (appState.drawMode === 'wheel') {
+                drawWheel();
+            } else if (appState.drawMode === 'slot') {
+                drawSlotMachine();
+            } else if (appState.drawMode === 'cards') {
+                setupCardsGrid();
+            }
+        }
+
+        // --- GLOBAL KEYBOARD LISTENERS ---
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                const winnerModal = document.getElementById('winnerModal');
+                if (!winnerModal.classList.contains('hidden')) {
+                    closeWinnerModal();
+                } else {
+                    if (appState.drawMode !== 'cards') {
+                        if (document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+                            startDraw();
+                        }
+                    }
+                }
+            }
+        });
+
+        function startDraw() {
+            initAudioContext();
+            if (appState.isDrawing || appState.names.length === 0) return;
+
+            if (appState.drawMode === 'wheel') {
+                startWheelSpinWithPhysics();
+            } else if (appState.drawMode === 'slot') {
+                isSlotSpinning = true;
+                appState.isDrawing = true;
+                startSpinningSound();
+                const startTime = Date.now();
+                const duration = appState.drawDuration * 1000;
+                const startOffset = slotOffset;
+                const rowHeight = 110;
+                const minSegments = 40;
+                const randomSegments = Math.floor(Math.random() * 20);
+                const totalOffset = (minSegments + randomSegments) * rowHeight;
+                runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset);
+            } else if (appState.drawMode === 'raffle') {
+                appState.isDrawing = true;
+                startSpinningSound();
+                runEsiimsiDrawSequence();
+            }
+        }
+
+        function importSampleNames() {
+            const sample = ["ອາລີ", "ວຽງສະຫວັນ", "ທະນົງສັກ", "ສາຍຝົນ", "ກິແກ້ວ", "ສົມສັກ", "ວິຈິດ", "ມະນີວັນ", "ສົມຈິດ", "ເພັດສະໝອນ"];
+            document.getElementById('namesInput').value = sample.join('\n');
+        }
+
+        document.getElementById('drawDuration').addEventListener('input', function(e) {
+            document.getElementById('durationVal').innerText = e.target.value;
+        });
+
+        // Initialize display safely
+        drawWheel();
+        updateTemplateSelector();
+    
+        // --- RIGHT SIDEBAR TAB SWITCHER ---
+        function switchRightTab(tabName) {
+            const tabWinners = document.getElementById('rightTab-winners');
+            const tabRemaining = document.getElementById('rightTab-remaining');
+            const btnWinners = document.getElementById('rightTabBtn-winners');
+            const btnRemaining = document.getElementById('rightTabBtn-remaining');
+            
+            if (tabName === 'winners') {
+                tabWinners.classList.remove('hidden');
+                tabRemaining.classList.add('hidden');
+                btnWinners.className = "flex-1 py-2 text-center border-b-2 border-yellow-500 text-yellow-400 font-bold bg-slate-900/30";
+                btnRemaining.className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold";
+            } else {
+                tabWinners.classList.add('hidden');
+                tabRemaining.classList.remove('hidden');
+                btnWinners.className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold";
+                btnRemaining.className = "flex-1 py-2 text-center border-b-2 border-emerald-400 text-emerald-400 font-bold bg-slate-900/30";
+            }
+        }
+
+        // --- UPDATE REMAINING PARTICIPANTS TABLE ---
+        function updateRemainingTable() {
+            const tbody = document.getElementById('remainingTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            appState.names.forEach((name, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-900/40 hover:bg-slate-900/10";
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-500">${index + 1}</td>
+                    <td class="p-3 font-semibold text-slate-300">${name}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Update badge
+            const countEl = document.getElementById('remainingCountBadge');
+            if (countEl) {
+                countEl.innerText = appState.names.length;
+            }
+        }
+
+        // --- EXPORT REMAINING PARTICIPANTS TO CSV ---
+        function exportRemainingToCSV() {
+            if (appState.names.length === 0) return;
+            let csvContent = "\uFEFFNo.,Name\n";
+            appState.names.forEach((name, index) => {
+                csvContent += `${index + 1},"${name}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "remaining_participants.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- ZEN MODE TOGGLE ---
+        let isZenMode = false;
+        function toggleZenMode() {
+            isZenMode = !isZenMode;
+            const leftPanel = document.getElementById('settingsModal');
+            const rightPanel = document.getElementById('rightPanel');
+            const zenToggleBtn = document.getElementById('zenToggleBtn');
+            
+            if (isZenMode) {
+                leftPanel.classList.add('hidden');
+                rightPanel.classList.add('hidden');
+                zenToggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                zenToggleBtn.title = "ສະແດງເຄື່ອງມື (Show Tools)";
+            } else {
+                leftPanel.classList.remove('hidden');
+                rightPanel.classList.remove('hidden');
+                zenToggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+                zenToggleBtn.title = "ຊ່ອນເຄື່ອງມື (Hide Tools)";
+            }
+            
+            // Trigger redrawing to fit new sizes
+            setTimeout(() => {
+                if (appState.drawMode === 'wheel') {
+                    drawWheel();
+                } else if (appState.drawMode === 'slot') {
+                    drawSlotMachine();
+                }
+            }, 100);
+        }
+
+        // Initialize inputs from state on load
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                document.getElementById('namesInput').value = appState.names.join('\n');
+                document.getElementById('drawDuration').value = appState.drawDuration;
+                document.getElementById('durationVal').innerText = appState.drawDuration;
+                document.getElementById('cardCountInput').value = appState.cardCount;
+                document.getElementById('winnersPerRound').value = appState.winnersPerRound || 1;
+                document.getElementById('removeWinnerToggle').checked = appState.removeWinner;
+                updateWinnersTable();
+                updateRemainingTable();
+                setDrawModeUI(appState.drawMode);
+                setWheelTheme(appState.wheelTheme);
+            } catch(e) {
+                console.warn("Init error:", e);
+            }
+        });
+
+    </script>
+</body>
+</html>
