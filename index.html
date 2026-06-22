@@ -36,10 +36,12 @@
         /* Overfront effects canvas - Highest Z-Index for particles to fall in front of modal text */
         #effectsCanvas {
             display: none;
+            visibility: hidden;      /* GPU compositor: discard layer completely */
             pointer-events: none;
             position: fixed;
             inset: 0;
             z-index: 10030;
+            will-change: auto;       /* Release GPU layer when not animating */
         }
         #virtualCursor {
             width: 40px;
@@ -386,6 +388,7 @@
                         <div id="wheelThemeSection">
                             <label class="block text-[10px] text-slate-400 font-bold mb-2 tech-font">WHEEL THEME (ແທມວົງລໍ້)</label>
                             <div class="grid grid-cols-1 gap-1.5" id="wheelThemeSelector">
+                                <button onclick="setWheelTheme('orangeBlue')" id="theme-orangeBlue" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Orange & Blue (ສີສ້ມ-ຟ້າ)</button>
                                 <button onclick="setWheelTheme('casino')" id="theme-casino" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Casino Gold</button>
                                 <button onclick="setWheelTheme('cyberpunk')" id="theme-cyberpunk" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Neon Cyber</button>
                                 <button onclick="setWheelTheme('wood')" id="theme-wood" class="theme-select-btn px-3 py-2 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition">Brass Wood</button>
@@ -720,7 +723,7 @@
             defaultNames: ["ສຸວັນນີ", "ສົມພອນ", "ພອນໄຊ", "ອານຸສອນ", "ແກ້ວມະນີ", "ວິໄລ", "ບຸນທອນ", "ນົງນຸດ", "ພຸດທະສອນ", "ທິບພະຈັນ"],
             winners: [],
             drawMode: 'wheel',
-            wheelTheme: 'casino',
+            wheelTheme: 'orangeBlue',
             cardCount: 8,
             drawDuration: 5,
             removeWinner: true,
@@ -1041,7 +1044,9 @@
 
         function triggerCelebration() {
             // Safe Canvas display enabling
+            effectsCanvas.style.visibility = 'visible';
             effectsCanvas.style.display = 'block';
+            effectsCanvas.style.willChange = 'transform'; // Promote to GPU layer
             particles = [];
             for (let i = 0; i < 45; i++) particles.push(new Particle());
             particlesActive = true;
@@ -1057,8 +1062,14 @@
 
         function stopCelebration() {
             particlesActive = false;
+            // Clear canvas content
             effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
-            effectsCanvas.style.display = 'none'; // Safe Canvas hiding to prevent overlap blocking
+            // Force GPU compositor to discard this layer completely
+            effectsCanvas.style.willChange = 'auto';
+            effectsCanvas.style.visibility = 'hidden';
+            effectsCanvas.style.display = 'none';
+            // Hard flush: force a resize reflow to discard the GPU buffer
+            effectsCanvas.width = effectsCanvas.width;
         }
 
         // --- CHROME & GOLD ARC REFLEXIVE WHEEL ---
@@ -1088,7 +1099,13 @@
 
             // Metallic Gold Bezel Outer Frame Rim
             const frameGrad = wheelCtx.createRadialGradient(centerX, centerY, radius, centerX, centerY, radius + 25);
-            if (appState.wheelTheme === 'casino') {
+            if (appState.wheelTheme === 'orangeBlue') {
+                frameGrad.addColorStop(0, '#334155');
+                frameGrad.addColorStop(0.3, '#94a3b8');
+                frameGrad.addColorStop(0.5, '#f8fafc'); 
+                frameGrad.addColorStop(0.7, '#94a3b8');
+                frameGrad.addColorStop(1, '#0f172a');
+            } else if (appState.wheelTheme === 'casino') {
                 frameGrad.addColorStop(0, '#5a4a2a');
                 frameGrad.addColorStop(0.3, '#d9a74a');
                 frameGrad.addColorStop(0.5, '#fff6d5'); 
@@ -1116,7 +1133,15 @@
                 const angle = i * arc + physicsState.rotation;
                 const segmentGrad = wheelCtx.createRadialGradient(centerX, centerY, 10, centerX, centerY, radius);
                 
-                if (appState.wheelTheme === 'casino') {
+                if (appState.wheelTheme === 'orangeBlue') {
+                    if (i % 2 === 0) {
+                        segmentGrad.addColorStop(0, '#ff9e59');
+                        segmentGrad.addColorStop(1, '#ea580c');
+                    } else {
+                        segmentGrad.addColorStop(0, '#59b2ff');
+                        segmentGrad.addColorStop(1, '#1d4ed8');
+                    }
+                } else if (appState.wheelTheme === 'casino') {
                     if (i % 2 === 0) {
                         segmentGrad.addColorStop(0, '#020617');
                         segmentGrad.addColorStop(1, '#0f172a');
@@ -1150,7 +1175,7 @@
                 wheelCtx.fill();
 
                 // Division borders
-                wheelCtx.strokeStyle = appState.wheelTheme === 'casino' ? 'rgba(217, 167, 74, 0.4)' : (appState.wheelTheme === 'cyberpunk' ? 'rgba(34, 211, 238, 0.4)' : 'rgba(245, 158, 11, 0.3)');
+                wheelCtx.strokeStyle = appState.wheelTheme === 'orangeBlue' ? 'rgba(255, 255, 255, 0.4)' : (appState.wheelTheme === 'casino' ? 'rgba(217, 167, 74, 0.4)' : (appState.wheelTheme === 'cyberpunk' ? 'rgba(34, 211, 238, 0.4)' : 'rgba(245, 158, 11, 0.3)'));
                 wheelCtx.lineWidth = numSegs > 100 ? 0.5 : 2;
                 wheelCtx.stroke();
 
@@ -1161,7 +1186,9 @@
                 wheelCtx.textAlign = "right";
                 wheelCtx.textBaseline = "middle";
 
-                if (appState.wheelTheme === 'casino') {
+                if (appState.wheelTheme === 'orangeBlue') {
+                    wheelCtx.fillStyle = '#ffffff';
+                } else if (appState.wheelTheme === 'casino') {
                     wheelCtx.fillStyle = '#f8fafc';
                 } else if (appState.wheelTheme === 'cyberpunk') {
                     wheelCtx.fillStyle = '#22d3ee';
@@ -1197,7 +1224,7 @@
             wheelCtx.beginPath();
             wheelCtx.arc(centerX, centerY, 65, 0, 2 * Math.PI);
             wheelCtx.fillStyle = innerGrad;
-            wheelCtx.strokeStyle = appState.wheelTheme === 'casino' ? '#d9a74a' : '#22d3ee';
+            wheelCtx.strokeStyle = appState.wheelTheme === 'orangeBlue' ? '#cbd5e1' : (appState.wheelTheme === 'casino' ? '#d9a74a' : '#22d3ee');
             wheelCtx.lineWidth = 4;
             wheelCtx.fill();
             wheelCtx.stroke();
@@ -2042,9 +2069,46 @@
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else if (document.exitFullscreen) document.exitFullscreen();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
         }
+
+        // Fullscreen exit: aggressively clear all canvas layers to prevent GPU ghost on desktop
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                // Exited fullscreen — nuclear canvas cleanup
+                stopCelebration();
+
+                // Force clear wheelCanvas GPU buffer
+                const wc = document.getElementById('wheelCanvas');
+                if (wc) { const tmp = wc.width; wc.width = 0; wc.width = tmp; }
+
+                // Force clear slotCanvas GPU buffer if exists
+                const sc = document.getElementById('slotCanvas');
+                if (sc) { const tmp = sc.width; sc.width = 0; sc.width = tmp; }
+
+                // Redraw the current mode cleanly after flush
+                requestAnimationFrame(() => {
+                    if (appState.drawMode === 'wheel') drawWheel();
+                    else if (appState.drawMode === 'slot') drawSlotMachine();
+                    else if (appState.drawMode === 'cards') setupCardsGrid();
+                });
+            }
+        });
+
+        // Also handle webkitfullscreenchange for Safari
+        document.addEventListener('webkitfullscreenchange', function() {
+            if (!document.webkitFullscreenElement) {
+                stopCelebration();
+                requestAnimationFrame(() => {
+                    if (appState.drawMode === 'wheel') drawWheel();
+                    else if (appState.drawMode === 'slot') drawSlotMachine();
+                });
+            }
+        });
 
         // --- WINNER ANNOUNCEMENT ---
         function fitWinnerName(name) {
