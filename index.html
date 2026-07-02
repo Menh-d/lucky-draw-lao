@@ -2627,6 +2627,11 @@
             
             const buffer = isEsiimsi ? recentEsiimsiWinners : recentWinners;
             
+            // Get deprioritized names
+            const deprioInput = document.getElementById('deprioritizedNamesInput');
+            const deprioText = deprioInput ? deprioInput.value : "";
+            const deprioList = deprioText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
             // Filter out recently drawn names
             let available = pool.filter(name => !buffer.includes(name));
             if (available.length === 0) {
@@ -2634,11 +2639,15 @@
                 buffer.length = 0;
                 available = pool;
             }
-            
-            // Get deprioritized names
-            const deprioInput = document.getElementById('deprioritizedNamesInput');
-            const deprioText = deprioInput ? deprioInput.value : "";
-            const deprioList = deprioText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            // Prevent history buffer from forcing rare names to be drawn
+            const hasNonDeprio = available.some(name => !deprioList.includes(name));
+            if (!hasNonDeprio) {
+                const nonDeprioFromPool = pool.filter(name => !deprioList.includes(name));
+                if (nonDeprioFromPool.length > 0) {
+                    available = available.concat(nonDeprioFromPool);
+                }
+            }
             
             // Get weight factor
             const weightFactorInput = document.getElementById('deprioritizedWeightInput');
