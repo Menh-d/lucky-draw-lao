@@ -167,27 +167,23 @@
         /* Esiimsi Cup shaker keyframes */
         @keyframes esiimsiRattle {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            10% { transform: translate(-8px, -18px) rotate(-8deg); }
-            20% { transform: translate(10px, 4px) rotate(10deg); }
-            30% { transform: translate(-12px, -14px) rotate(-12deg); }
-            40% { transform: translate(12px, 2px) rotate(8deg); }
-            50% { transform: translate(-10px, -10px) rotate(-10deg); }
-            60% { transform: translate(10px, 4px) rotate(6deg); }
-            70% { transform: translate(-6px, -6px) rotate(-6deg); }
-            80% { transform: translate(6px, 2px) rotate(4deg); }
-            90% { transform: translate(-3px, -2px) rotate(-2deg); }
+            15% { transform: translate(-4px, 8px) rotate(-5deg); }
+            30% { transform: translate(6px, -10px) rotate(6deg); }
+            45% { transform: translate(-8px, 6px) rotate(-7deg); }
+            60% { transform: translate(8px, -8px) rotate(5deg); }
+            75% { transform: translate(-5px, 5px) rotate(-4deg); }
+            90% { transform: translate(3px, -3px) rotate(2deg); }
         }
         .esiimsi-cup-shake, .animate-cup-shake {
-            animation: esiimsiRattle 0.18s infinite;
+            animation: esiimsiRattle 0.12s infinite ease-in-out;
         }
 
         /* Esiimsi Stick Shaking Animation */
         @keyframes stickRattle {
             0%, 100% { transform: translateY(0) rotate(var(--orig-rot)); }
-            20% { transform: translateY(-16px) rotate(calc(var(--orig-rot) + 3deg)); }
-            40% { transform: translateY(8px) rotate(calc(var(--orig-rot) - 3deg)); }
-            60% { transform: translateY(-12px) rotate(calc(var(--orig-rot) + 1.5deg)); }
-            80% { transform: translateY(4px) rotate(calc(var(--orig-rot) - 1deg)); }
+            25% { transform: translateY(-24px) rotate(calc(var(--orig-rot) + 2deg)); }
+            50% { transform: translateY(12px) rotate(calc(var(--orig-rot) - 2deg)); }
+            75% { transform: translateY(-16px) rotate(calc(var(--orig-rot) + 1deg)); }
         }
         .animate-stick-shake {
             animation: stickRattle 0.16s infinite ease-in-out;
@@ -202,12 +198,13 @@
         /* Premium Esiimsi Sticks style */
         .esiimsi-stick {
             width: 20px;
-            height: 250px;
+            height: 320px;
             background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #b45309 100%); /* Premium wood gradient */
             border: 1px solid #78350f;
             border-radius: 4px;
             position: absolute;
-            bottom: 40px;
+            bottom: 20px;
+            left: calc(50% - 10px);
             transform-origin: bottom center;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             display: flex;
@@ -884,43 +881,43 @@
                 <div class="relative w-[360px] h-[500px] flex flex-col items-center justify-center select-none">
                     
                     <!-- The Esiimsi Cup Container (Holds sticks behind front plate) -->
-                    <div id="esiimsiCup" class="relative w-64 h-[350px] cursor-pointer" onclick="startDraw()">
+                    <div id="esiimsiCup" class="relative w-64 h-[260px] cursor-pointer" onclick="startDraw()">
                         <!-- Sandwiched Sticks (9 sticks) -->
                         <div id="esiimsiSticks" class="absolute bottom-0 inset-x-0 h-full overflow-visible pointer-events-none z-0">
                             <!-- Stick 1 -->
-                            <div class="esiimsi-stick transform -translate-x-12 -rotate-[15deg]" style="--orig-rot: -15deg; bottom: 35px;">
+                            <div class="esiimsi-stick" style="--orig-rot: -20deg; transform: rotate(-20deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 2 -->
-                            <div class="esiimsi-stick transform -translate-x-9 -rotate-[10deg]" style="--orig-rot: -10deg; bottom: 40px;">
+                            <div class="esiimsi-stick" style="--orig-rot: -15deg; transform: rotate(-15deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 3 -->
-                            <div class="esiimsi-stick transform -translate-x-6 -rotate-[5deg]" style="--orig-rot: -5deg; bottom: 45px;">
+                            <div class="esiimsi-stick" style="--orig-rot: -10deg; transform: rotate(-10deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 4 -->
-                            <div class="esiimsi-stick transform -translate-x-3 -rotate-[2deg]" style="--orig-rot: -2deg; bottom: 50px;">
+                            <div class="esiimsi-stick" style="--orig-rot: -5deg; transform: rotate(-5deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 5 -->
-                            <div class="esiimsi-stick transform rotate-0" style="--orig-rot: 0deg; bottom: 52px;">
+                            <div class="esiimsi-stick" style="--orig-rot: 0deg; transform: rotate(0deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 6 -->
-                            <div class="esiimsi-stick transform translate-x-3 rotate-[2deg]" style="--orig-rot: 2deg; bottom: 50px;">
+                            <div class="esiimsi-stick" style="--orig-rot: 5deg; transform: rotate(5deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 7 -->
-                            <div class="esiimsi-stick transform translate-x-6 rotate-[5deg]" style="--orig-rot: 5deg; bottom: 45px;">
+                            <div class="esiimsi-stick" style="--orig-rot: 10deg; transform: rotate(10deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 8 -->
-                            <div class="esiimsi-stick transform translate-x-9 rotate-[10deg]" style="--orig-rot: 10deg; bottom: 40px;">
+                            <div class="esiimsi-stick" style="--orig-rot: 15deg; transform: rotate(15deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                             <!-- Stick 9 -->
-                            <div class="esiimsi-stick transform translate-x-12 rotate-[15deg]" style="--orig-rot: 15deg; bottom: 35px;">
+                            <div class="esiimsi-stick" style="--orig-rot: 20deg; transform: rotate(20deg); bottom: 20px;">
                                 <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
                             </div>
                         </div>
@@ -1158,8 +1155,8 @@
         let appState = {
             names: ["ສຸວັນນີ", "ສົມພອນ", "ພອນໄຊ", "ອານຸສອນ", "ແກ້ວມະນີ", "ວິໄລ", "ບຸນທອນ", "ນົງນຸດ", "ພຸດທະສອນ", "ທິບພະຈັນ"],
             defaultNames: ["ສຸວັນນີ", "ສົມພອນ", "ພອນໄຊ", "ອານຸສອນ", "ແກ້ວມะນີ", "ວິໄລ", "ບຸນທອນ", "ນົງນຸດ", "ພຸດທະສອນ", "ທິບພະຈັນ"],
-            esiimsiNames: ["ອາລີ", "ວຽງສະຫວັນ", "ທະນົງສັກ", "ສາຍຝົນ", "ກິແກ້ວ", "ສົມສັກ", "ວິຈິດ", "ມະນີວັນ", "ສົມຈິດ", "ເພັດສະໝອນ"],
-            defaultEsiimsiNames: ["ອາລີ", "ວຽງສະຫວັນ", "ທະນົງສັກ", "ສາຍຝົນ", "ກິແກ້ວ", "ສົມສັກ", "ວິຈິດ", "ມະນີວັນ", "ສົມຈິດ", "ເພັດສະໝອນ"],
+            esiimsiNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+            defaultEsiimsiNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
             removeEsiimsiWinner: true,
             winners: [],
             drawMode: 'wheel',
@@ -2166,25 +2163,42 @@
             fallenStick.style.left = '50%';
             fallenStick.style.transform = 'translateX(-50%) scale(0.6) rotate(0deg)';
 
-            // Add shake animations
+            // Add shake animations with random delays for organic clattering
             cup.classList.add('animate-cup-shake');
-            sticks.forEach(stk => stk.classList.add('animate-stick-shake'));
+            sticks.forEach((stk, index) => {
+                stk.style.animationDelay = `${(Math.random() * 0.15).toFixed(2)}s`;
+                stk.classList.add('animate-stick-shake');
+            });
 
-            // Select winner name and fortune index from Esiimsi names list
+            // Select winner name and match with Esiimsi fortunes database
             const rawEsiimsiNames = document.getElementById('esiimsiNamesInput').value;
             appState.esiimsiNames = rawEsiimsiNames.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             const winner = appState.esiimsiNames[Math.floor(Math.random() * appState.esiimsiNames.length)];
-            const fortuneIdx = Math.floor(Math.random() * ESIIMSI_FORTUNES.length);
-            const fortune = ESIIMSI_FORTUNES[fortuneIdx];
-            currentEsiimsiFortune = fortune;
+            
+            // Try to match the drawn stick number to the corresponding fortune card
+            let matchedFortune = null;
+            const numMatch = winner.match(/\d+/);
+            if (numMatch) {
+                const num = parseInt(numMatch[0]);
+                matchedFortune = ESIIMSI_FORTUNES.find(f => f.no === num);
+            }
+            if (!matchedFortune) {
+                // Fallback to random fortune if not a number
+                const fortuneIdx = Math.floor(Math.random() * ESIIMSI_FORTUNES.length);
+                matchedFortune = ESIIMSI_FORTUNES[fortuneIdx];
+            }
+            currentEsiimsiFortune = matchedFortune;
 
             setTimeout(() => {
                 // Stop shaking animations
                 cup.classList.remove('animate-cup-shake');
-                sticks.forEach(stk => stk.classList.remove('animate-stick-shake'));
+                sticks.forEach(stk => {
+                    stk.style.animationDelay = '';
+                    stk.classList.remove('animate-stick-shake');
+                });
 
                 // Set content for the fallen stick
-                fallenStickNo.innerText = fortune.no;
+                fallenStickNo.innerText = matchedFortune.no;
                 fallenStickName.innerText = winner;
 
                 // Animate winning stick rising up out of the cup and dropping flat
@@ -3145,8 +3159,9 @@
 
         function importSampleNames() {
             const sample = ["ອາລີ", "ວຽງສະຫວັນ", "ທະນົງສັກ", "ສາຍຝົນ", "ກິແກ້ວ", "ສົມສັກ", "ວິຈິດ", "ມະນີວັນ", "ສົມຈິດ", "ເພັດສະໝອນ"];
+            const esiimsiSample = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
             if (appState.drawMode === 'raffle') {
-                document.getElementById('esiimsiNamesInput').value = sample.join('\n');
+                document.getElementById('esiimsiNamesInput').value = esiimsiSample.join('\n');
             } else {
                 document.getElementById('namesInput').value = sample.join('\n');
             }
