@@ -666,7 +666,7 @@
                                 <button onclick="saveCurrentAsTemplate()" class="w-full py-2.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border border-cyan-800 rounded text-xs font-bold transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-floppy-disk"></i> ບັນທຶກພຣີເຊັດທັງໝົດ</button>
                             </div>
                             <p class="text-[10px] text-slate-500 leading-normal">
-                                * ລະບົບຈະບັນທຶກທຸກການຕັ້ງຄ່າ: ລາຍຊື່, ໂຫມດ, ธีມສີ, ເວລາ, ແລະ ມີເດຍ (ຮູບ/ສຽງ) ທີ່ໂຫລດໄວ້.
+                                * ລະບົບຈະບັນທຶກສະເພາະການຕັ້ງຄ່າ: ໂໝດ, ລາຍຊື່, ເວລາ ແລະ ຕົວເລືອກການສຸ່ມ.
                             </p>
                         </div>
                     </section>
@@ -2736,27 +2736,14 @@
                 esiimsiSubMode: appState.esiimsiSubMode,
                 deprioritizedNames: document.getElementById('deprioritizedNamesInput')?.value || "",
                 deprioritizedWeight: document.getElementById('deprioritizedWeightInput')?.value || "10",
-                effectType: appState.effectType,
-                logoData: appState.logoData,
-                mascotData: appState.mascotData,
-                bgImgData: appState.bgImgData,
-                customParticleData: appState.customParticleData,
-                tickSoundData: appState.tickSoundData,
-                winSoundData: appState.winSoundData
+                effectType: appState.effectType
             };
             
             try {
                 localStorage.setItem('lucky_draw_all_templates', JSON.stringify(templates));
             } catch(e) {
-                // If quota exceeded (large media files), save without media as fallback
-                console.warn('localStorage quota exceeded, saving without media:', e);
-                const fallback = Object.assign({}, templates[name], {
-                    logoData: null, mascotData: null, bgImgData: null,
-                    customParticleData: null, tickSoundData: null, winSoundData: null
-                });
-                templates[name] = fallback;
-                try { localStorage.setItem('lucky_draw_all_templates', JSON.stringify(templates)); } catch(e2) {}
-                alert("ບັນທຶກສຳເລັດ! (ຫມາຊເຫດຸ: ໄຟລໄໂກ້/ຮູບໃຫຍ່ເກີນພື້ນທີ່ບັນທຶກ)");
+                console.error("Failed to save template to localStorage:", e);
+                alert("ບັນທຶກລົ້ມເຫຼວ! ພື້ນທີ່ບັນທຶກເຕັມ.");
                 return;
             }
             
