@@ -302,10 +302,10 @@
         .esiimsi-scroll-card {
             background: linear-gradient(135deg, #fefbf3 0%, #faf5e6 100%);
             border: 4px double #b91c1c;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(185, 28, 28, 0.05);
-            max-height: 280px;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65), inset 0 0 40px rgba(185, 28, 28, 0.05);
+            max-height: 480px;
             overflow-y: auto;
             width: 100%;
             color: #1e293b;
@@ -939,9 +939,9 @@
                         <!-- Cup Front Body (Tapered) -->
                         <div class="absolute inset-0 bg-gradient-to-b from-[#f97316] via-[#ea580c] to-[#9a3412] border-t-8 border-[#f59e0b] shadow-[0_25px_50px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center z-10 pointer-events-none esiimsi-cup-front">
                             <!-- Golden circle with red "福" or custom logo in the center -->
-                            <div class="w-24 h-24 rounded-full border-4 border-[#b91c1c] flex items-center justify-center bg-[#b91c1c]/10 shadow-inner overflow-hidden relative">
+                            <div id="esiimsiCupCircle" class="w-24 h-24 rounded-full border-4 border-[#b91c1c] flex items-center justify-center bg-[#b91c1c]/10 shadow-inner overflow-hidden relative">
                                 <span id="esiimsiCupText" class="text-[#b91c1c] text-5xl font-black" style="font-family: serif; transform: translateY(-2px);">福</span>
-                                <img id="esiimsiCupLogo" class="hidden w-full h-full object-contain p-1" src="" alt="logo" />
+                                <img id="esiimsiCupLogo" class="hidden w-full h-full object-cover" src="" alt="logo" />
                             </div>
                             <!-- Golden horizontal band -->
                             <div class="absolute bottom-8 inset-x-0 h-3 bg-gradient-to-b from-[#fbbf24] to-[#b45309] border-y border-[#fef08a]/40 opacity-80"></div>
@@ -1105,40 +1105,40 @@
                 <p id="winnerCongratulationsText" class="text-slate-200 text-sm font-semibold tracking-wider bg-black/40 px-8 py-2 rounded-full border border-slate-800/60 shadow-md mt-6">ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!</p>
                 
                 <!-- Esiimsi Fortune Scroll Container -->
-                <div id="esiimsiScrollContainer" class="hidden w-full max-w-xl mt-6 transform translate-y-4 opacity-0 transition-all duration-700">
+                <div id="esiimsiScrollContainer" class="hidden w-full max-w-3xl mt-6 transform translate-y-4 opacity-0 transition-all duration-700">
                     <div class="esiimsi-scroll-card">
                         <!-- Header with stick number and rating -->
-                        <div class="flex items-center justify-between border-b-2 border-red-800 pb-3 mb-4">
+                        <div class="flex items-center justify-between border-b-2 border-red-800 pb-4 mb-6">
                             <div>
-                                <span class="text-xs font-bold text-red-800 uppercase tracking-widest text-[10px]">ເຊຽມຊີ Esiimsi</span>
-                                <h3 class="text-lg font-black text-red-950" id="esiimsiScrollNo">ໃບທີ 8 (No. 8)</h3>
+                                <span class="text-xs font-bold text-red-800 uppercase tracking-widest text-xs">ເຊຽມຊີ Esiimsi</span>
+                                <h3 class="text-2xl font-black text-red-950 mt-1" id="esiimsiScrollNo">ໃບທີ 8 (No. 8)</h3>
                             </div>
-                            <div class="bg-red-800 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full border border-red-700 shadow" id="esiimsiScrollRating">
+                            <div class="bg-red-800 text-white font-extrabold text-xs md:text-sm px-4 py-1.5 rounded-full border border-red-700 shadow" id="esiimsiScrollRating">
                                 ດີເລີດ (大吉)
                             </div>
                         </div>
                         
                         <!-- Prediction Categories -->
-                        <div class="space-y-3 text-[11px] font-bold text-slate-800 text-left">
+                        <div class="space-y-6 text-sm font-bold text-slate-800 text-left">
                             <!-- Overall Luck -->
                             <div>
-                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">💡 ໂຊກຊະຕາທົ່ວໄປ (Overall Luck)</h4>
-                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollOverall">ຄຳທຳນາຍໂຊກຊະຕາທົ່ວໄປ...</p>
+                                <h4 class="text-red-800 text-base font-extrabold border-b border-red-200 pb-1 mb-1.5">💡 ໂຊກຊະຕາທົ່ວໄປ (Overall Luck)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700 text-xs md:text-sm" id="esiimsiScrollOverall">ຄຳທຳນາຍໂຊກຊະຕາທົ່ວໄປ...</p>
                             </div>
                             <!-- Career & Wealth -->
                             <div>
-                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">💼 ການງານ-ການເງິນ (Career & Wealth)</h4>
-                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollCareer">ຄຳທຳນາຍການງານ ແລະ ການເງິນ...</p>
+                                <h4 class="text-red-800 text-base font-extrabold border-b border-red-200 pb-1 mb-1.5">💼 ການງານ-ການເງິນ (Career & Wealth)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700 text-xs md:text-sm" id="esiimsiScrollCareer">ຄຳທຳນາຍການງານ ແລະ ການເງິນ...</p>
                             </div>
                             <!-- Love & Relationships -->
                             <div>
-                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">❤️ ຄວາມຮັກ (Love & Relationships)</h4>
-                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollLove">ຄຳທຳນາຍຄວາມຮັກ...</p>
+                                <h4 class="text-red-800 text-base font-extrabold border-b border-red-200 pb-1 mb-1.5">❤️ ຄວາມຮັກ (Love & Relationships)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700 text-xs md:text-sm" id="esiimsiScrollLove">ຄຳທຳນາຍຄວາມຮັກ...</p>
                             </div>
                             <!-- Health -->
                             <div>
-                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">🩺 ສຸຂະພາບ (Health)</h4>
-                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollHealth">ຄຳທຳນາຍສຸຂະພາບ...</p>
+                                <h4 class="text-red-800 text-base font-extrabold border-b border-red-200 pb-1 mb-1.5">🩺 ສຸຂະພາບ (Health)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700 text-xs md:text-sm" id="esiimsiScrollHealth">ຄຳທຳນາຍສຸຂະພາບ...</p>
                             </div>
                         </div>
                     </div>
@@ -2618,15 +2618,20 @@
         function updateEsiimsiCupLogo() {
             const cupText = document.getElementById('esiimsiCupText');
             const cupLogo = document.getElementById('esiimsiCupLogo');
-            if (cupText && cupLogo) {
+            const cupCircle = document.getElementById('esiimsiCupCircle');
+            if (cupText && cupLogo && cupCircle) {
                 if (appState.logoData) {
                     cupText.classList.add('hidden');
                     cupLogo.src = appState.logoData;
                     cupLogo.classList.remove('hidden');
+                    cupCircle.classList.remove('bg-[#b91c1c]/10');
+                    cupCircle.classList.add('bg-white');
                 } else {
                     cupText.classList.remove('hidden');
                     cupLogo.src = '';
                     cupLogo.classList.add('hidden');
+                    cupCircle.classList.remove('bg-white');
+                    cupCircle.classList.add('bg-[#b91c1c]/10');
                 }
             }
         }
