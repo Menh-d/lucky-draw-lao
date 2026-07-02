@@ -178,7 +178,147 @@
             90% { transform: translate(-3px, -2px) rotate(-2deg); }
         }
         .esiimsi-cup-shake, .animate-cup-shake {
-            animation: esiimsiRattle 0.15s infinite;
+            animation: esiimsiRattle 0.18s infinite;
+        }
+
+        /* Esiimsi Stick Shaking Animation */
+        @keyframes stickRattle {
+            0%, 100% { transform: translateY(0) rotate(var(--orig-rot)); }
+            20% { transform: translateY(-16px) rotate(calc(var(--orig-rot) + 3deg)); }
+            40% { transform: translateY(8px) rotate(calc(var(--orig-rot) - 3deg)); }
+            60% { transform: translateY(-12px) rotate(calc(var(--orig-rot) + 1.5deg)); }
+            80% { transform: translateY(4px) rotate(calc(var(--orig-rot) - 1deg)); }
+        }
+        .animate-stick-shake {
+            animation: stickRattle 0.16s infinite ease-in-out;
+        }
+
+        /* Tapered Esiimsi Cup Front */
+        .esiimsi-cup-front {
+            clip-path: polygon(5% 0%, 95% 0%, 82% 100%, 18% 100%);
+            border-radius: 0 0 24px 24px;
+        }
+
+        /* Premium Esiimsi Sticks style */
+        .esiimsi-stick {
+            width: 20px;
+            height: 250px;
+            background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #b45309 100%); /* Premium wood gradient */
+            border: 1px solid #78350f;
+            border-radius: 4px;
+            position: absolute;
+            bottom: 40px;
+            transform-origin: bottom center;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+        .esiimsi-stick-top {
+            width: 100%;
+            height: 44px;
+            background-color: #dc2626; /* Vibrant Red Top */
+            clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%); /* Pentagonal shape */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 10px;
+            box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .esiimsi-stick-circle {
+            width: 14px;
+            height: 14px;
+            background-color: #facc15; /* Golden Yellow circle */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #92400e;
+        }
+        .esiimsi-stick-char {
+            color: #7f1d1d; /* Deep Red character */
+            font-size: 8px;
+            font-weight: 900;
+            font-family: sans-serif;
+        }
+
+        /* Falling stick styling (drops in front of the cup) */
+        #esiimsiFallenStick {
+            position: absolute;
+            z-index: 50;
+            width: 50px;
+            height: 280px;
+            background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+            border: 2px solid #78350f;
+            border-radius: 6px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 15px rgba(245, 158, 11, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            transform-origin: center center;
+            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        #esiimsiFallenStick .stick-top {
+            width: 100%;
+            height: 60px;
+            background-color: #dc2626;
+            clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 14px;
+        }
+        #esiimsiFallenStick .stick-circle {
+            width: 24px;
+            height: 24px;
+            background-color: #facc15;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #92400e;
+        }
+        #esiimsiFallenStick .stick-char {
+            color: #7f1d1d;
+            font-size: 11px;
+            font-weight: 950;
+        }
+        #esiimsiFallenStick .stick-body-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px 4px;
+            writing-mode: vertical-lr;
+            font-weight: 900;
+            color: #7f1d1d;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        /* Esiimsi Fortune Scroll styling */
+        .esiimsi-scroll-card {
+            background: linear-gradient(135deg, #fefbf3 0%, #faf5e6 100%);
+            border: 4px double #b91c1c;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(185, 28, 28, 0.05);
+            max-height: 280px;
+            overflow-y: auto;
+            width: 100%;
+            color: #1e293b;
+        }
+        .esiimsi-scroll-card::-webkit-scrollbar {
+            width: 4px;
+        }
+        .esiimsi-scroll-card::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 2px;
         }
         
         /* Chasing LEDs around slot frame */
@@ -729,33 +869,69 @@
             <div id="esiimsiContainer" class="hidden w-full max-w-2xl flex flex-col items-center justify-center relative">
                 <div class="relative w-[360px] h-[500px] flex flex-col items-center justify-center select-none">
                     
-                    <div id="esiimsiCup" class="w-64 h-[350px] bg-gradient-to-b from-red-800 via-red-950 to-red-900 border-t-[12px] border-yellow-500 border-b-[8px] border-yellow-600/40 rounded-b-[3.5rem] shadow-[0_25px_50px_rgba(0,0,0,0.65)] flex flex-col items-center justify-between py-8 esiimsi-cup cursor-pointer relative" onclick="startDraw()">
-                        <!-- Decorative Golden Bands -->
-                        <div class="absolute top-1/4 inset-x-0 h-4 bg-gradient-to-b from-yellow-500 via-amber-400 to-yellow-600 border-y border-yellow-300/40 opacity-90 shadow-md"></div>
-                        <div class="absolute bottom-12 inset-x-0 h-4 bg-gradient-to-b from-yellow-500 via-amber-400 to-yellow-600 border-y border-yellow-300/40 opacity-90 shadow-md"></div>
-                        
-                        <!-- Calligraphic Fortune Symbol -->
-                        <div class="w-20 h-20 rounded-full border-4 border-yellow-500/80 bg-red-950/80 flex items-center justify-center shadow-inner z-10">
-                            <span class="text-yellow-500 text-3xl font-extrabold tech-font filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]">福</span>
+                    <!-- The Esiimsi Cup Container (Holds sticks behind front plate) -->
+                    <div id="esiimsiCup" class="relative w-64 h-[350px] cursor-pointer" onclick="startDraw()">
+                        <!-- Sandwiched Sticks (9 sticks) -->
+                        <div id="esiimsiSticks" class="absolute bottom-0 inset-x-0 h-full overflow-visible pointer-events-none z-0">
+                            <!-- Stick 1 -->
+                            <div class="esiimsi-stick transform -translate-x-12 -rotate-[15deg]" style="--orig-rot: -15deg; bottom: 35px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 2 -->
+                            <div class="esiimsi-stick transform -translate-x-9 -rotate-[10deg]" style="--orig-rot: -10deg; bottom: 40px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 3 -->
+                            <div class="esiimsi-stick transform -translate-x-6 -rotate-[5deg]" style="--orig-rot: -5deg; bottom: 45px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 4 -->
+                            <div class="esiimsi-stick transform -translate-x-3 -rotate-[2deg]" style="--orig-rot: -2deg; bottom: 50px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 5 -->
+                            <div class="esiimsi-stick transform rotate-0" style="--orig-rot: 0deg; bottom: 52px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 6 -->
+                            <div class="esiimsi-stick transform translate-x-3 rotate-[2deg]" style="--orig-rot: 2deg; bottom: 50px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 7 -->
+                            <div class="esiimsi-stick transform translate-x-6 rotate-[5deg]" style="--orig-rot: 5deg; bottom: 45px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 8 -->
+                            <div class="esiimsi-stick transform translate-x-9 rotate-[10deg]" style="--orig-rot: 10deg; bottom: 40px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
+                            <!-- Stick 9 -->
+                            <div class="esiimsi-stick transform translate-x-12 rotate-[15deg]" style="--orig-rot: 15deg; bottom: 35px;">
+                                <div class="esiimsi-stick-top"><div class="esiimsi-stick-circle"><span class="esiimsi-stick-char">籤</span></div></div>
+                            </div>
                         </div>
 
-                        <div class="text-[10px] font-bold tracking-[0.2em] text-yellow-400 border border-yellow-500/40 px-4 py-1.5 bg-black/55 rounded-full z-10 shadow-lg">ເຊຽມຊີ (ESIIMSI)</div>
-                        
-                        <!-- Top Bamboo Sticks protruding out -->
-                        <div class="absolute -top-24 inset-x-0 flex justify-center gap-1.5 overflow-visible h-28 pointer-events-none z-0">
-                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform -rotate-12 shadow-md border-r border-amber-700"></div>
-                            <div class="w-3 h-28 bg-amber-600 rounded-t-lg transform rotate-6 shadow-md border-r border-amber-800"></div>
-                            <div class="w-3 h-28 bg-amber-400 rounded-t-lg transform -rotate-3 shadow-md border-r border-amber-700"></div>
-                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform rotate-15 shadow-md border-r border-amber-800"></div>
-                            <div class="w-3 h-28 bg-amber-600 rounded-t-lg transform -rotate-6 shadow-md border-r border-amber-700"></div>
-                            <div class="w-3 h-28 bg-amber-400 rounded-t-lg transform rotate-10 shadow-md border-r border-amber-800"></div>
-                            <div class="w-3 h-28 bg-amber-500 rounded-t-lg transform -rotate-10 shadow-md border-r border-amber-700"></div>
+                        <!-- Cup Front Body (Tapered) -->
+                        <div class="absolute inset-0 bg-gradient-to-b from-[#f97316] via-[#ea580c] to-[#9a3412] border-t-8 border-[#f59e0b] shadow-[0_25px_50px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center z-10 pointer-events-none esiimsi-cup-front">
+                            <!-- Golden circle with red "福" in the center -->
+                            <div class="w-24 h-24 rounded-full border-4 border-[#b91c1c] flex items-center justify-center bg-[#b91c1c]/10 shadow-inner">
+                                <span class="text-[#b91c1c] text-5xl font-black" style="font-family: serif; transform: translateY(-2px);">福</span>
+                            </div>
+                            <!-- Golden horizontal band -->
+                            <div class="absolute bottom-8 inset-x-0 h-3 bg-gradient-to-b from-[#fbbf24] to-[#b45309] border-y border-[#fef08a]/40 opacity-80"></div>
+                            <!-- Sub label -->
+                            <div class="absolute bottom-16 text-[9px] font-bold tracking-[0.2em] text-[#fde047] border border-[#f59e0b]/40 px-3.5 py-1 bg-black/55 rounded-full shadow-lg">ເຊຽມຊີ ESIIMSI</div>
                         </div>
                     </div>
 
-                    <!-- Enlarged Wooden Stick -->
-                    <div id="esiimsiWinningStick" class="hidden absolute bottom-16 w-14 h-[350px] bg-gradient-to-b from-amber-100 via-amber-200 to-yellow-400 border-[3px] border-yellow-600 rounded-t-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex items-center justify-center font-bold text-red-950 text-xs tracking-widest [writing-mode:vertical-lr] py-6 transition-all duration-1000 z-20">
-                        <span id="esiimsiWinnerName" class="drop-shadow filter drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)]">LUCKY WINNER</span>
+                    <!-- Esiimsi Fallen Stick (ejected out, tumbles down flat) -->
+                    <div id="esiimsiFallenStick" class="hidden">
+                        <div class="stick-top">
+                            <div class="stick-circle">
+                                <span class="stick-char" id="esiimsiFallenStickNo">8</span>
+                            </div>
+                        </div>
+                        <div class="stick-body-content" id="esiimsiFallenStickName">LUCKY WINNER</div>
                     </div>
                 </div>
                 <p class="text-xs text-slate-400 mt-4 font-semibold bg-slate-900/50 px-6 py-1.5 rounded-full border border-slate-800/40">ຄລິກໃສ່ກະບອກ ເພື່ອສັ່ນເຊຽມຊີ</p>
@@ -900,7 +1076,47 @@
             <!-- Single Winner name - DEAD CENTER -->
             <div id="singleWinnerView" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-full max-w-6xl px-6">
                 <div id="winnerName" class="font-black my-2 tracking-wider text-yellow-400 winner-text-animated leading-tight select-text text-center"></div>
-                <p class="text-slate-200 text-sm font-semibold tracking-wider bg-black/40 px-8 py-2 rounded-full border border-slate-800/60 shadow-md mt-6">ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!</p>
+                <p id="winnerCongratulationsText" class="text-slate-200 text-sm font-semibold tracking-wider bg-black/40 px-8 py-2 rounded-full border border-slate-800/60 shadow-md mt-6">ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!</p>
+                
+                <!-- Esiimsi Fortune Scroll Container -->
+                <div id="esiimsiScrollContainer" class="hidden w-full max-w-xl mt-6 transform translate-y-4 opacity-0 transition-all duration-700">
+                    <div class="esiimsi-scroll-card">
+                        <!-- Header with stick number and rating -->
+                        <div class="flex items-center justify-between border-b-2 border-red-800 pb-3 mb-4">
+                            <div>
+                                <span class="text-xs font-bold text-red-800 uppercase tracking-widest text-[10px]">ເຊຽມຊີ Esiimsi</span>
+                                <h3 class="text-lg font-black text-red-950" id="esiimsiScrollNo">ໃບທີ 8 (No. 8)</h3>
+                            </div>
+                            <div class="bg-red-800 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full border border-red-700 shadow" id="esiimsiScrollRating">
+                                ດີເລີດ (大吉)
+                            </div>
+                        </div>
+                        
+                        <!-- Prediction Categories -->
+                        <div class="space-y-3 text-[11px] font-bold text-slate-800 text-left">
+                            <!-- Overall Luck -->
+                            <div>
+                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">💡 ໂຊກຊະຕາທົ່ວໄປ (Overall Luck)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollOverall">ຄຳທຳນາຍໂຊກຊະຕາທົ່ວໄປ...</p>
+                            </div>
+                            <!-- Career & Wealth -->
+                            <div>
+                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">💼 ການງານ-ການເງິນ (Career & Wealth)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollCareer">ຄຳທຳນາຍການງານ ແລະ ການເງິນ...</p>
+                            </div>
+                            <!-- Love & Relationships -->
+                            <div>
+                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">❤️ ຄວາມຮັກ (Love & Relationships)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollLove">ຄຳທຳນາຍຄວາມຮັກ...</p>
+                            </div>
+                            <!-- Health -->
+                            <div>
+                                <h4 class="text-red-800 font-extrabold border-b border-red-200 pb-0.5 mb-0.5">🩺 ສຸຂະພາບ (Health)</h4>
+                                <p class="font-medium leading-relaxed text-slate-700" id="esiimsiScrollHealth">ຄຳທຳນາຍສຸຂະພາບ...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Multi Winner view - DEAD CENTER -->
@@ -1813,33 +2029,172 @@
             }
         }
 
+        // --- CHINESE ESIIMSI FORTUNES DATABASE ---
+        const ESIIMSI_FORTUNES = [
+            {
+                no: 1,
+                rating: "ດີເລີດ (Superb Luck / 大吉)",
+                overall: "ໃບນີ້ແມ່ນດີເລີດ ປຽບເໝືອນຕາເວັນຂຶ້ນໃນຍາມເຊົ້າ ທ້ອງຟ້າແຈ່ມໃສ ໝົດທຸກໝົດໂສກ ຈະມີແຕ່ຄວາມສຸກຄວາມຈະເລີນເຂົ້າມາ.",
+                career: "ການງານຈະຮຸ່ງເຮືອງ ໄດ້ຮັບການສະໜັບສະໜູນຈາກຜູ້ໃຫຍ່ ການເງິນຄ່ອງຕົວດີ ແລະ ມີໂຊກລາບກ້ອນໃຫຍ່ເຂົ້າມາ.",
+                love: "ຄວາມຮັກສົມຫວັງງົດງາມ ຄົນໂສດຈະໄດ້ພົບຄູ່ຄອງທີ່ດີ ຄົນມີຄູ່ຈະມີຄວາມເຂົ້າອົກເຂົ້າໃຈກັນ ແລະ ຮັກກັນຫຼາຍຂຶ້ນ.",
+                health: "ສຸຂະພາບແຂງແຮງດີ ຫາກມີອາການເຈັບປ່ວຍກໍຈະຫາຍດີໃນໄວໆນີ້ ທາງດ້ານຮ່າງກາຍ ແລະ ຈິດໃຈສົດຊື່ນ."
+            },
+            {
+                no: 2,
+                rating: "ການເລີ່ມຕົ້ນໃໝ່ (New Beginnings / 吉)",
+                overall: "ໃບນີ້ປຽບເໝືອນຕົ້ນໄມ້ທີ່ຜລິໃບໃໝ່ຫຼັງຝົນຕົກ ສິ່ງທີ່ເຄີຍຕິດຂັດ ຫຼື ເປັນອຸປະສັກໃນຊີວິດຈະຄ່ອຍໆໄດ້ຮັບການແກ້ໄຂ.",
+                career: "ມີໂອກາດດີໆ ໃນການເລີ່ມຕົ້ນເຮັດສິ່ງໃໝ່ໆ ເຊັ່ນ ວຽກໃໝ່ ຫຼື ທຸລະກິດໃໝ່ ການເງິນຈະເລີ່ມດີຂຶ້ນຕາມລໍາດັບ.",
+                love: "ມີເກນໄດ້ເລີ່ມຕົ້ນຄວາມສຳພັນໃໝ່ກັບຄົນທີ່ດີ ຫຼື ຄວາມຮັກເກົ່າຈະໄດ້ຮັບການຟື້ນຟູໃຫ້ກັບມາຫວານຊື່ນອີກຄັ້ງ.",
+                health: "ຮ່າງກາຍກຳລັງຟື້ນຟູ ຄວນພັກຜ່ອນໃຫ້ພຽງພໍ ແລະ ເບິ່ງແຍງອາຫານການກິນ ສຸຂະພາບຈະດີຂຶ້ນເລື້ອຍໆ."
+            },
+            {
+                no: 3,
+                rating: "ຄວາມອົດທົນ (Patience / 平)",
+                overall: "ໃບນີ້ເຕືອນໃຫ້ມີຄວາມອົດທົນ ແລະ ສະຕິ ຢ່າຟ້າວຕັດສິນໃຈດ້ວຍຄວາມໃຈຮ້ອນ ການຮີບຮ້ອນໃນຊ່ວງນີ້ອາດນຳບັນຫາມາໃຫ້.",
+                career: "ການງານຕ້ອງໃຊ້ຄວາມພະຍາຍາມ ແລະ ເວລາຈຶ່ງຈະສຳເລັດ ຢ່າຟ້າວລົງທຶນໃຫຍ່ ການເງິນຄວນປະຢັດມັດທະຍັດໄວ້ກ່ອນ.",
+                love: "ຄວາມຮັກຍັງຕ້ອງເບິ່ງກັນໄປດົນໆ ຢ່າຟ້າວທຸ້ມເທໃຈ ຫຼື ຕັດສິນໃຈເລືອກ ຄ່ອຍໆຮຽນຮູ້ກັນໄປຈະດີທີ່ສຸດ.",
+                health: "ລະວັງຄວາມຄຽດ ແລະ ການພັກຜ່ອນບໍ່ພຽງພໍ ຄວນຫາເວລາຜ່ອນຄາຍ ແລະ ອອກກຳລັງກາຍເບົາໆ."
+            },
+            {
+                no: 4,
+                rating: "ມີຜູ້ອຸປະຖຳ (Supportive Allies / 吉)",
+                overall: "ໂຊກຊະຕາດີ ຈະມີຜູ້ໃຫຍ່ ຫຼື ມິດສະຫາຍທີ່ດີຄອຍຊ່ວຍເຫຼືອອຸປະຖຳຄຳຊູ ຫາກພົບອຸປະສັກກໍຈະຜ່ານພົ້ນໄປໄດ້ດ້ວຍດີ.",
+                career: "ມີເກນໄດ້ຮັບໂອກາດໃນການເຮັດວຽກຈາກຜູ້ໃຫຍ່ ຫຼື ເພື່ອນຮ່ວມງານຊ່ວຍຜັກດັນ ການເງິນໝັ້ນຄົງດີ.",
+                love: "ຄົນໂສດຈະມີຄົນແນະນຳໃຫ້ຮູ້ຈັກຄົນດີໆ ຄົນມີຄູ່ຈະໄດ້ຮັບການສະໜັບສະໜູນ ແລະ ຊ່ວຍເຫຼືອຈາກຄູ່ຄອງເປັນຢ່າງດີ.",
+                health: "ສຸຂະພາບໂດຍລວມແຂງແຮງ ຫາກເຈັບປ່ວຍກໍຈະໄດ້ຮັບການເບິ່ງແຍງຮັກສາຈາກແພດໝໍ ຫຼື ຄົນໃກ້ຊິດເປັນຢ່າງດີ."
+            },
+            {
+                no: 5,
+                rating: "ໂຊກລາບລອຍ (Unexpected Fortune / 大吉)",
+                overall: "ໃບນີ້ແມ່ນໂຊກດີຫຼາຍ ຈະມີເກນໄດ້ຮັບໂຊກລາບ ຫຼື ສິ່ງດີໆ ແບບບໍ່ຄາດຝັນເຂົ້າມາໃນຊີວິດຢ່າງຕໍ່ເນື່ອງ.",
+                career: "ການລົງທຶນ ຫຼື ຄ້າຂາຍຈະໄດ້ຮັບຜົນຕອບແທນສູງ ຈະມີລາຍໄດ້ເສີມຫຼັ່ງໄຫຼເຂົ້າມາ ໂໂຊກລາບທາງການເງິນໂດດເດັ່ນ.",
+                love: "ຈະໄດ້ພົບຄົນທີ່ຖືກໃຈໂດຍບັງເອີນ ຫຼື ຄູ່ຄອງຈະນຳເອົາໂຊກລາບ ແລະ ຄວາມສຸກມາໃຫ້ໃນໄວໆນີ້.",
+                health: "ຮ່າງກາຍແຂງແຮງ ສຸຂະພາບຈິດດີຫຼາຍ ມີຄວາມສຸກກາຍສະບາຍໃຈ ເຕັມไปด้วยພະລັງງານບວກ."
+            },
+            {
+                no: 6,
+                rating: "ຄວາມສະຫງົບ (Peace & Serenity / 平)",
+                overall: "ຊີວິດໃນຊ່ວງນີ້ມີຄວາມສະຫງົບລຽບງ່າຍ ບໍ່ມີເລື່ອງຮ້ອນໃຈ ຫຼື ວຸ່ນວາຍ ຄວນໃຊ້ເວລານີ້ໃນການພັກຜ່ອນ ແລະ ທຳບຸນ.",
+                career: "ການງານດຳເນີນໄປຢ່າງຮາບຮື່ນ ບໍ່ມີບັນຫາໃຫຍ່ ການເງິນໝັ້ນຄົງ ບໍ່ມີລາຍຈ່າຍທີ່ຜິດປົກກະຕິ.",
+                love: "ຄວາມຮັກເປັນແບບລຽບງ່າຍ ແຕ່ໝັ້ນຄົງ ບໍ່ມີເລື່ອງຜິດຖຽງກັນ ຄົນໂສດຍັງພໍໃຈກັບຊີວິດທີ່ສະຫງົບສຸກ.",
+                health: "ສຸຂະພາບແຂງແຮງດີ ຄວນລະວັງພະຍາດເລັກໆນ້ອຍໆ ເຊັ່ນ ຫວັດ ຫຼື ພູມແພ້ ໂດຍລວມຖືວ່າປົກກະຕິ."
+            },
+            {
+                no: 7,
+                rating: "ຄວາມສຳເລັດ (Success / 吉)",
+                overall: "ສິ່ງທີ່ທ່ານຕັ້ງໃຈ ແລະ ລົງມືເຮັດມາຢ່າງຍາວນານ ຈະໄດ້ຮັບຜົນສຳເລັດອັນງົດງາມ ເປັນຊ່ວງເວລາແຫ່ງຄວາມພູມໃຈ.",
+                career: "ການສອບເສັງ, ການສະໝັກງານ ຫຼື ການສະເໜີໂຄງການຈະໄດ້ຮັບຂ່າວດີ ການເງິນຈະໄດ້ຮັບຜົນກຳໄລຈາກການເຮັດວຽກ.",
+                love: "ຄວາມຮັກສົມຫວັງ ຫາກຄິດຈະສ້າງຄອບຄົວ ຫຼື ແຕ່ງງານກໍເປັນຊ່ວງເວລາທີ່ເໝາະສົມ ຄວາມສຳພັນມີຄວາມສຸກ.",
+                health: "ສຸຂະພາບຮ່າງກາຍແຂງແຮງດີ ບໍ່ມີຫຍັງໜ້າເປັນຫ່ວງ ຈິດໃຈມີຄວາມເບີກບານມ່ວນຊື່ນກັບຄວາມສຳເລັດ."
+            },
+            {
+                no: 8,
+                rating: "ການເດີນທາງ (Travel & Expansion / 吉)",
+                overall: "ມີເກນຈະໄດ້ເດີນທາງໄກ ຫຼື ມີການຍົກຍ້າຍ ປ່ຽນແປງທີ່ຢູ່ອາໄສ ຫຼື ບ່ອນເຮັດວຽກ ໄປໃນທາງທີ່ດີຂຶ້ນກວ່າເກົ່າ.",
+                career: "ການເດີນທາງໄປເຮັດວຽກຕ່າງຖິ່ນ ຫຼື ຕ່າງປະເທດຈະປະສົບຜົນສຳເລັດ ຈະໄດ້ຄອນເນັກຊັນໃໝ່ໆ ການເງິນມີເກນຂະຫຍາຍຕົວ.",
+                love: "ຄົນໂສດອາດໄດ້ພົບຮັກລະຫວ່າງການເດີນທາງ ຫຼື ພົບຮັກກັບຄົນຕ່າງຖິ່ນ ຄົນມີຄູ່ຈະມີເກນໄດ້ເດີນທາງທ່ອງທ່ຽວຮ່ວມກັນ.",
+                health: "ສຸຂະພາບແຂງແຮງ ແຕ່ຄວນລະວັງເລື່ອງການເດີນທາງ ແລະ ການພັກຜ່ອນບໍ່ເປັນເວລາ ຄວນກຽມຢາປະຈຳຕົວໄປນຳ."
+            },
+            {
+                no: 9,
+                rating: "ຄວາມພະຍາຍາມ (Persistence / 平)",
+                overall: "ອຸປະສັກມີໄວ້ໃຫ້ຂ້າມຜ່ານ ຢ່າທໍ້ຖອຍກັບບັນຫາເລັກໆນ້ອຍໆ ຄວາມພະຍາຍາມຂອງທ່ານຈະນຳມາຊຶ່ງຜົນສຳເລັດໃນທີ່ສຸດ.",
+                career: "ການງານອາດຈະມີຄວາມກົດດັນ ຫຼື ຕ້ອງແກ້ໄຂບັນຫາສະເພาະໜ້າຫຼາຍ ແຕ່ຈະຜ່ານໄປໄດ້ ການເງິນຕ້ອງວາງແຜນໃຫ້ຮັດກຸມ.",
+                love: "ຄວາມຮັກອາດມີເລື່ອງຜິດເຂົ້າໃຈກັນເລັກນ້ອຍ ແຕ່ຫາກໃຊ້ເຫດຜົນ ແລະ ຄວາມເຂົ້າໃຈກໍຈະກັບມາຮັກກັນຄືເກົ່າ.",
+                health: "ລະວັງຄວາມອ່ອນເພຍຈາກການເຮັດວຽກໜັກ ຄວນຫາເວລາພັກຜ່ອນໃຫ້ພຽງພໍ ແລະ ກິນອາຫານທີ່ມີປະໂຫຍດ."
+            },
+            {
+                no: 10,
+                rating: "ໂຊກສະຕາຟ້າເປີດ (Bright Future / 大吉)",
+                overall: "ທ້ອງຟ້າຫຼັງຝົນຍ່ອມສະຫວ່າງສະເໝີ ຄວາມທຸກຍາກ ແລະ ເລື່ອງຮ້ອນໃຈຕ່າງໆ ຈະໝົດໄປ ຈະມີແຕ່ສິ່ງດີໆ ຫຼັ່ງໄຫຼເຂົ້າມາ.",
+                career: "ການງານຈະມີຄວາມກ້າວໜ້າຢ່າງກ້າວກະໂດດ ໄດ້ຮັບຕຳແໜ່ງໃໝ່ ຫຼື ໂອກາດໃຫຍ່ ການເງິນຈະມີຄວາມອຸດົມສົມບູນ.",
+                love: "ຄົນໂສດຈະໄດ້ພົບຄົນທີ່ຮັກແທ້ ແລະ ພ້ອມທີ່ຈະດູແລກັນ ຄົນມີຄູ່ຊີວິດຄອບຄົວຈະມີຄວາມສຸກອົບອຸ່ນຢ່າງຍິ່ງ.",
+                health: "ສຸຂະພາບແຂງແຮງສົມບູນ ທັງຮ່າງກາຍ ແລະ ຈິດໃຈ ມີພະລັງງານຢ່າງເຕັມປ່ຽມໃນການດຳເນີນຊີວິດ."
+            },
+            {
+                no: 11,
+                rating: "ຄວາມສາມັກຄີ (Harmony & Teamwork / 吉)",
+                overall: "ໃບນີ້ເນັ້ນໃສ່ການຮ່ວມມື ແລະ ຄວາມສາມັກຄີ ການເຮັດວຽກຮ່ວມກັບຜູ້ອື່ນຈະນຳມາຊຶ່ງຜົນປະໂຫຍດ ແລະ ຄວາມສຳເລັດອັນຍິ່ງໃຫຍ່.",
+                career: "ການເຮັດວຽກເປັນທີມຈະໄດ້ຮັບຜົນດີຫຼາຍ ເພື່ອນຮ່ວມງານ ແລະ ຄູ່ຄ້າໃຫ້ຄວາມໄວ້ວາງໃຈ ການເງິນໝູນວຽນດີ.",
+                love: "ຄວາມຮັກມີຄວາມເຂົ້າອົກເຂົ້າໃຈ ແລະ ສະໜັບສະໜູນກັນໃນທຸກໆເລື່ອງ ປຽບເໝືອນເພື່ອນຄູ່ຄິດທີ່ດີ.",
+                health: "ສຸຂະພາບແຂງແຮງ ຈິດໃຈສະຫງົບ ຫາກມີກິດຈະກຳກາງແຈ້ງຮ່ວມກັບຄອບຄົວ ຫຼື ໝູ່ເພື່ອນ ຈະຊ່ວຍເພີ່ມພະລັງຊີວິດ."
+            },
+            {
+                no: 12,
+                rating: "ດີ (Learning & Wisdom / 吉)",
+                overall: "ເປັນຊ່ວງເວລາທີ່ດີທີ່ສຸດໃນການຫາຄວາມຮູ້ໃໝ່ໆ ຫຼື ການຝຶກອົບຮົມຕ່າງໆ ສະຕິປັນຍາຂອງທ່ານຈະແຫຼມຄົມ ແລະ ແກ້ໄຂບັນຫາໄດ້ທຸກຢ່າງ.",
+                career: "ມີເກນປະສົບຜົນສຳເລັດໃນການຮຽນ ຫຼື ການສຶກສາຕໍ່ ວຽກງານທີ່ຕ້ອງໃຊ້ຄວາມຄິດສ້າງສັນຈະໂດດເດັ່ນ ການເງິນຄົງທີ່.",
+                love: "ຄົນໂສດອາດພົບຮັກໃນສະຖານທີ່ສຶກສາ ຫຼື ບ່ອນເຮັດວຽກ ຄົນມີຄູ່ຈະຊ່ວຍກັນວາງແຜນອະນາຄົດຢ່າງມີສະຕິປັນຍາ.",
+                health: "ສຸຂະພາບດີ ລະວັງເລື່ອງສາຍຕາ ຫຼື ອາການປວດຄໍບ່າໄຫຼ່ຈາກການນັ່ງເຮັດວຽກ ຫຼື ອ່ານໜັງສືດົນເກີນໄປ."
+            }
+        ];
+
+        // Current drawn Esiimsi fortune
+        let currentEsiimsiFortune = null;
+
         // --- CHINESE ESIIMSI DRAW SEQUENCER ---
         function runEsiimsiDrawSequence() {
             playWoodRattleSound();
 
             const cup = document.getElementById('esiimsiCup');
-            const stick = document.getElementById('esiimsiWinningStick');
-            const winnerText = document.getElementById('esiimsiWinnerName');
+            const sticks = document.querySelectorAll('#esiimsiSticks .esiimsi-stick');
+            const fallenStick = document.getElementById('esiimsiFallenStick');
+            const fallenStickNo = document.getElementById('esiimsiFallenStickNo');
+            const fallenStickName = document.getElementById('esiimsiFallenStickName');
 
-            stick.classList.add('hidden');
+            // Hide previous fallen stick and reset position
+            fallenStick.classList.add('hidden');
+            fallenStick.style.transition = 'none';
+            fallenStick.style.bottom = '16px';
+            fallenStick.style.left = '50%';
+            fallenStick.style.transform = 'translateX(-50%) scale(0.6) rotate(0deg)';
+
+            // Add shake animations
             cup.classList.add('animate-cup-shake');
+            sticks.forEach(stk => stk.classList.add('animate-stick-shake'));
+
+            // Select winner name and fortune index
+            const winner = appState.names[Math.floor(Math.random() * appState.names.length)];
+            const fortuneIdx = Math.floor(Math.random() * ESIIMSI_FORTUNES.length);
+            const fortune = ESIIMSI_FORTUNES[fortuneIdx];
+            currentEsiimsiFortune = fortune;
 
             setTimeout(() => {
+                // Stop shaking animations
                 cup.classList.remove('animate-cup-shake');
-                
-                const winner = appState.names[Math.floor(Math.random() * appState.names.length)];
-                winnerText.innerText = winner;
-                
-                stick.classList.remove('hidden');
-                stick.style.transform = "translateY(-220px) rotate(10deg)";
-                
+                sticks.forEach(stk => stk.classList.remove('animate-stick-shake'));
+
+                // Set content for the fallen stick
+                fallenStickNo.innerText = fortune.no;
+                fallenStickName.innerText = winner;
+
+                // Animate winning stick rising up out of the cup and dropping flat
+                // Step 1: Rise up
+                fallenStick.classList.remove('hidden');
                 setTimeout(() => {
-                    announceWinner(winner);
+                    fallenStick.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                    // Slide up
+                    fallenStick.style.bottom = '220px';
+                    
+                    // Step 2: Tumble and drop flat on the table
                     setTimeout(() => {
-                        stick.style.transform = "none";
-                        stick.classList.add('hidden');
-                    }, 1000);
-                }, 1300);
+                        fallenStick.style.transition = 'all 1s cubic-bezier(0.19, 1, 0.22, 1)';
+                        // Drop down, turn horizontal, and scale up slightly
+                        fallenStick.style.bottom = '20px';
+                        fallenStick.style.transform = 'translateX(-50%) translateY(30px) rotate(90deg) scale(1.1)';
+                        
+                        // Step 3: Trigger full screen modal celebration after stick settles
+                        setTimeout(() => {
+                            announceWinner(winner);
+                            // Reset the stick visual after modal is shown
+                            setTimeout(() => {
+                                fallenStick.classList.add('hidden');
+                            }, 1200);
+                        }, 1800);
+
+                    }, 800);
+                }, 50);
+
             }, appState.drawDuration * 1000);
         }
 
@@ -2533,6 +2888,38 @@
                 multiView.classList.add('hidden');
                 mascotContainer.style.display = '';
                 fitWinnerName(winners[0]);
+
+                // If drawMode is Esiimsi, populate and show the fortune card
+                const scrollContainer = document.getElementById('esiimsiScrollContainer');
+                const congratsText = document.getElementById('winnerCongratulationsText');
+                const winnerNameEl = document.getElementById('winnerName');
+                
+                if (appState.drawMode === 'raffle' && currentEsiimsiFortune) {
+                    congratsText.innerText = "ໂຊກຊະຕາເຊຽມຊີຂອງທ່ານໃນຄັ້ງນີ້! (Esiimsi Fortune)";
+                    
+                    // Populate scroll info
+                    document.getElementById('esiimsiScrollNo').innerText = "ໃບທີ " + currentEsiimsiFortune.no + " (No. " + currentEsiimsiFortune.no + ")";
+                    document.getElementById('esiimsiScrollRating').innerText = currentEsiimsiFortune.rating;
+                    document.getElementById('esiimsiScrollOverall').innerText = currentEsiimsiFortune.overall;
+                    document.getElementById('esiimsiScrollCareer').innerText = currentEsiimsiFortune.career;
+                    document.getElementById('esiimsiScrollLove').innerText = currentEsiimsiFortune.love;
+                    document.getElementById('esiimsiScrollHealth').innerText = currentEsiimsiFortune.health;
+
+                    // Style adjustments to fit scroll beautifully
+                    winnerNameEl.style.fontSize = Math.min(100, parseFloat(winnerNameEl.style.fontSize)) + "px";
+
+                    scrollContainer.classList.remove('hidden');
+                    // Trigger reflow for slide up and fade in transition
+                    setTimeout(() => {
+                        scrollContainer.style.opacity = '1';
+                        scrollContainer.style.transform = 'translateY(0)';
+                    }, 50);
+                } else {
+                    congratsText.innerText = "ໄດ້ຮັບລາງວັນໃນການສຸ່ມຄັ້ງນີ້!";
+                    scrollContainer.classList.add('hidden');
+                    scrollContainer.style.opacity = '0';
+                    scrollContainer.style.transform = 'translateY(16px)';
+                }
             } else {
                 // Show multi-winner grid layout
                 singleView.classList.add('hidden');
@@ -2591,6 +2978,14 @@
         function closeWinnerModal() {
             document.getElementById('winnerModal').classList.add('hidden');
             stopCelebration();
+
+            // Reset Esiimsi scroll container if any
+            const scrollContainer = document.getElementById('esiimsiScrollContainer');
+            if (scrollContainer) {
+                scrollContainer.classList.add('hidden');
+                scrollContainer.style.opacity = '0';
+                scrollContainer.style.transform = 'translateY(16px)';
+            }
 
             if (appState.drawMode === 'wheel') {
                 drawWheel();
