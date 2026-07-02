@@ -727,6 +727,20 @@
                                 </button>
                             </div>
                         </div>
+                        <div id="esiimsiModeSection" class="hidden flex flex-col gap-2">
+                            <label class="block text-[10px] text-slate-400 font-bold mb-1 tech-font">ESIIMSI MODE (ຮູບແບບເຊຽມຊີ)</label>
+                            <div class="grid grid-cols-1 gap-1.5 mb-3">
+                                <button onclick="setEsiimsiSubMode('fortune')" id="esiimsi-sub-fortune" class="esiimsi-sub-btn px-3 py-2.5 bg-slate-900 border-2 border-cyan-400 rounded text-xs text-cyan-400 font-bold hover:bg-slate-800 transition flex items-center justify-between">
+                                    <span>ມີຄຳທຳນາຍ (With Fortune)</span>
+                                    <i class="fa-solid fa-circle-check text-cyan-400"></i>
+                                </button>
+                                <button onclick="setEsiimsiSubMode('standard')" id="esiimsi-sub-standard" class="esiimsi-sub-btn px-3 py-2.5 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition flex items-center justify-between">
+                                    <span>ສຸ່ມຜູ້ຊະນະປົກກະຕິ (Standard Raffle)</span>
+                                    <i class="fa-solid fa-circle-check text-cyan-400 hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+
                         <div id="wheelThemeSection">
                             <label class="block text-[10px] text-slate-400 font-bold mb-2 tech-font">WHEEL THEME (ແທມວົງລໍ້)</label>
                             <div class="grid grid-cols-1 gap-1.5" id="wheelThemeSelector">
@@ -924,9 +938,10 @@
 
                         <!-- Cup Front Body (Tapered) -->
                         <div class="absolute inset-0 bg-gradient-to-b from-[#f97316] via-[#ea580c] to-[#9a3412] border-t-8 border-[#f59e0b] shadow-[0_25px_50px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center z-10 pointer-events-none esiimsi-cup-front">
-                            <!-- Golden circle with red "福" in the center -->
-                            <div class="w-24 h-24 rounded-full border-4 border-[#b91c1c] flex items-center justify-center bg-[#b91c1c]/10 shadow-inner">
-                                <span class="text-[#b91c1c] text-5xl font-black" style="font-family: serif; transform: translateY(-2px);">福</span>
+                            <!-- Golden circle with red "福" or custom logo in the center -->
+                            <div class="w-24 h-24 rounded-full border-4 border-[#b91c1c] flex items-center justify-center bg-[#b91c1c]/10 shadow-inner overflow-hidden relative">
+                                <span id="esiimsiCupText" class="text-[#b91c1c] text-5xl font-black" style="font-family: serif; transform: translateY(-2px);">福</span>
+                                <img id="esiimsiCupLogo" class="hidden w-full h-full object-contain p-1" src="" alt="logo" />
                             </div>
                             <!-- Golden horizontal band -->
                             <div class="absolute bottom-8 inset-x-0 h-3 bg-gradient-to-b from-[#fbbf24] to-[#b45309] border-y border-[#fef08a]/40 opacity-80"></div>
@@ -1158,6 +1173,7 @@
             esiimsiNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
             defaultEsiimsiNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
             removeEsiimsiWinner: true,
+            esiimsiSubMode: 'fortune',
             winners: [],
             drawMode: 'wheel',
             wheelTheme: 'orangeBlue',
@@ -1832,14 +1848,33 @@
             const duration = appState.drawDuration * 1000;
             const startRotation = physicsState.rotation;
             
+            const N = appState.names.length;
+            const arc = (2 * Math.PI) / N;
+            
+            const winner = getRandomWinnerFromPool(appState.names, false);
+            const winnerIdx = appState.names.indexOf(winner);
+            
+            const targetPointerAngle = (winnerIdx + 0.5) * arc;
+            let R_final = (3 * Math.PI / 2) - targetPointerAngle;
+            R_final = (R_final % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            
+            const R_start = (startRotation % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            
             let totalAngle;
             if (velocity !== undefined && Math.abs(velocity) > 0.5) {
                 const direction = Math.sign(velocity);
-                const baseSpin = (8 + Math.random() * 4) * 2 * Math.PI;
-                const velocityBonus = Math.abs(velocity) * 5;
-                totalAngle = direction * (baseSpin + velocityBonus);
+                const loops = 5 + Math.floor(Math.abs(velocity) * 3);
+                if (direction > 0) {
+                    const diff = (R_final - R_start + 2 * Math.PI) % (2 * Math.PI);
+                    totalAngle = (loops * 2 * Math.PI) + diff;
+                } else {
+                    const diff = (R_start - R_final + 2 * Math.PI) % (2 * Math.PI);
+                    totalAngle = - (loops * 2 * Math.PI) - diff;
+                }
             } else {
-                totalAngle = (10 + Math.random() * 5) * 2 * Math.PI;
+                const diff = (R_final - R_start + 2 * Math.PI) % (2 * Math.PI);
+                const loops = 8;
+                totalAngle = (loops * 2 * Math.PI) + diff;
             }
             
             runPhysicsWheelDecelerationTimeBased(startTime, duration, startRotation, totalAngle);
@@ -2026,7 +2061,7 @@
                     playWinnerSound(); // Play only winning sound without overlapping loops
 
                     const inner = card.querySelector('.card-inner');
-                    const winner = appState.names[Math.floor(Math.random() * appState.names.length)];
+                    const winner = getRandomWinnerFromPool(appState.names, false);
                     document.getElementById(`cardName-${i}`).innerText = winner;
 
                     inner.classList.add('card-flipped');
@@ -2171,10 +2206,10 @@
                 stk.classList.add('animate-stick-shake');
             });
 
-            // Select winner name and match with Esiimsi fortunes database
+            // Select winner name using non-repeat selection logic and match with Esiimsi fortunes database
             const rawEsiimsiNames = document.getElementById('esiimsiNamesInput').value;
             appState.esiimsiNames = rawEsiimsiNames.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-            const winner = appState.esiimsiNames[Math.floor(Math.random() * appState.esiimsiNames.length)];
+            const winner = getRandomWinnerFromPool(appState.esiimsiNames, true);
             
             // Try to match the drawn stick number to the corresponding fortune card
             let matchedFortune = null;
@@ -2402,6 +2437,9 @@
             document.getElementById('esiimsiContainer').classList.add('hidden');
             document.getElementById('wheelThemeSection').classList.add('hidden');
             document.getElementById('cardCountSection').classList.add('hidden');
+            if (document.getElementById('esiimsiModeSection')) {
+                document.getElementById('esiimsiModeSection').classList.add('hidden');
+            }
 
             const mainNamesSec = document.getElementById('mainNamesSection');
             const esiimsiNamesSec = document.getElementById('esiimsiNamesSection');
@@ -2449,6 +2487,9 @@
                 setupCardsGrid(); 
             } else if (mode === 'raffle') {
                 document.getElementById('esiimsiContainer').classList.remove('hidden');
+                if (document.getElementById('esiimsiModeSection')) {
+                    document.getElementById('esiimsiModeSection').classList.remove('hidden');
+                }
             }
         }
 
@@ -2508,6 +2549,7 @@
                     appState.logoImg.onload = () => {
                         drawWheel();
                         if (appState.drawMode === 'cards') setupCardsGrid();
+                        updateEsiimsiCupLogo();
                     };
                     setUploadStatus('logoUploadStatus', 'logoUploadName', file.name);
                 };
@@ -2527,6 +2569,65 @@
                     setUploadStatus('mascotUploadStatus', 'mascotUploadName', file.name);
                 };
                 reader.readAsDataURL(file);
+            }
+        }
+
+        let recentWinners = [];
+        let recentEsiimsiWinners = [];
+
+        function getRandomWinnerFromPool(pool, isEsiimsi) {
+            if (!pool || pool.length === 0) return "";
+            if (pool.length === 1) return pool[0];
+            
+            const buffer = isEsiimsi ? recentEsiimsiWinners : recentWinners;
+            
+            // Filter out recently drawn names
+            let available = pool.filter(name => !buffer.includes(name));
+            if (available.length === 0) {
+                // If all names have been drawn recently, clear the buffer and use full pool
+                buffer.length = 0;
+                available = pool;
+            }
+            
+            const chosen = available[Math.floor(Math.random() * available.length)];
+            
+            // Push to buffer and limit its size
+            buffer.push(chosen);
+            const limit = Math.min(5, Math.floor(pool.length / 2));
+            if (buffer.length > limit) {
+                buffer.shift();
+            }
+            return chosen;
+        }
+
+        function setEsiimsiSubMode(subMode) {
+            appState.esiimsiSubMode = subMode;
+            document.querySelectorAll('.esiimsi-sub-btn').forEach(btn => {
+                btn.className = "esiimsi-sub-btn px-3 py-2.5 bg-slate-950 border-2 border-transparent rounded text-xs text-slate-300 hover:bg-slate-850 transition flex items-center justify-between";
+                const check = btn.querySelector('i');
+                if (check) check.classList.add('hidden');
+            });
+            const activeBtn = document.getElementById(`esiimsi-sub-${subMode}`);
+            if (activeBtn) {
+                activeBtn.className = "esiimsi-sub-btn px-3 py-2.5 bg-slate-900 border-2 border-cyan-400 rounded text-xs text-cyan-400 font-bold hover:bg-slate-800 transition flex items-center justify-between";
+                const check = activeBtn.querySelector('i');
+                if (check) check.classList.remove('hidden');
+            }
+        }
+
+        function updateEsiimsiCupLogo() {
+            const cupText = document.getElementById('esiimsiCupText');
+            const cupLogo = document.getElementById('esiimsiCupLogo');
+            if (cupText && cupLogo) {
+                if (appState.logoData) {
+                    cupText.classList.add('hidden');
+                    cupLogo.src = appState.logoData;
+                    cupLogo.classList.remove('hidden');
+                } else {
+                    cupText.classList.remove('hidden');
+                    cupLogo.src = '';
+                    cupLogo.classList.add('hidden');
+                }
             }
         }
 
@@ -2550,6 +2651,7 @@
                 winnersPerRound: appState.winnersPerRound,
                 removeWinner: appState.removeWinner,
                 removeEsiimsiWinner: appState.removeEsiimsiWinner,
+                esiimsiSubMode: appState.esiimsiSubMode,
                 effectType: appState.effectType,
                 logoData: appState.logoData,
                 mascotData: appState.mascotData,
@@ -2607,6 +2709,11 @@
                         document.getElementById('removeEsiimsiWinnerToggle').checked = true;
                     }
                 }
+                if (data.esiimsiSubMode) {
+                    setEsiimsiSubMode(data.esiimsiSubMode);
+                } else {
+                    setEsiimsiSubMode('fortune');
+                }
 
                 if (data.drawMode) appState.drawMode = data.drawMode;
                 if (data.wheelTheme) appState.wheelTheme = data.wheelTheme;
@@ -2634,7 +2741,10 @@
                     appState.logoData = data.logoData;
                     appState.logoImg = new Image();
                     appState.logoImg.src = data.logoData;
-                    appState.logoImg.onload = () => drawWheel();
+                    appState.logoImg.onload = () => {
+                        drawWheel();
+                        updateEsiimsiCupLogo();
+                    };
                     setUploadStatus('logoUploadStatus', 'logoUploadName', 'ໂລໂກ້ຈາກ Template');
                 }
                 if (data.mascotData) {
@@ -3005,7 +3115,7 @@
                 const congratsText = document.getElementById('winnerCongratulationsText');
                 const winnerNameEl = document.getElementById('winnerName');
                 
-                if (appState.drawMode === 'raffle' && currentEsiimsiFortune) {
+                if (appState.drawMode === 'raffle' && appState.esiimsiSubMode === 'fortune' && currentEsiimsiFortune) {
                     congratsText.innerText = "ໂຊກຊະຕາເຊຽມຊີຂອງທ່ານໃນຄັ້ງນີ້! (Esiimsi Fortune)";
                     
                     // Populate scroll info
@@ -3155,9 +3265,15 @@
                 const duration = appState.drawDuration * 1000;
                 const startOffset = slotOffset;
                 const rowHeight = 110;
-                const minSegments = 40;
-                const randomSegments = Math.floor(Math.random() * 20);
-                const totalOffset = (minSegments + randomSegments) * rowHeight;
+                const N = appState.names.length;
+                let S_idx = Math.round(startOffset / rowHeight) % N;
+                if (S_idx < 0) S_idx += N;
+                
+                const winner = getRandomWinnerFromPool(appState.names, false);
+                const winnerIdx = appState.names.indexOf(winner);
+                const diff = (winnerIdx - S_idx + N) % N;
+                const minMultiplier = 4;
+                const totalOffset = (minMultiplier * N + diff) * rowHeight;
                 runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset);
             } else if (appState.drawMode === 'raffle') {
                 appState.isDrawing = true;
@@ -3293,6 +3409,8 @@
                 if (document.getElementById('removeEsiimsiWinnerToggle')) {
                     document.getElementById('removeEsiimsiWinnerToggle').checked = appState.removeEsiimsiWinner;
                 }
+                setEsiimsiSubMode(appState.esiimsiSubMode || 'fortune');
+                updateEsiimsiCupLogo();
                 updateWinnersTable();
                 updateRemainingTable();
                 initializeDefaultMedia();
