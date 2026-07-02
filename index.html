@@ -699,7 +699,11 @@
                         <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 flex flex-col gap-2 mt-2">
                             <label class="block text-[10px] text-red-400 font-bold tech-font"><i class="fa-solid fa-triangle-exclamation mr-1"></i>RAREST WINNERS (ລາຍຊື່ທີ່ໃຫ້ສຸ່ມໄດ້ຍາກທີ່ສຸດ)</label>
                             <textarea id="deprioritizedNamesInput" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-red-400 resize-none font-sans" placeholder="ຊື່ທີ່ຕ້ອງການໃຫ້ສຸ່ມໄດ້ຍາກທີ່ສຸດ (1 ຊື່ຕໍ່ແຖວ)..."></textarea>
-                            <p class="text-[9px] text-slate-500 leading-normal">* ລາຍຊື່ໃນນີ້ຈະມີໂອກາດສຸ່ມຖືກຍາກກວ່າຊື່ທົ່ວໄປ 10 ເທົ່າ (10x lower probability).</p>
+                            <div class="flex items-center justify-between gap-2 mt-1">
+                                <label for="deprioritizedWeightInput" class="text-[10px] text-slate-400 font-bold">ຫຼຸດໂອກາດສຸ່ມຖືກລົງ (ເທົ່າ):</label>
+                                <input type="number" id="deprioritizedWeightInput" value="10" min="2" max="1000" class="w-20 bg-slate-950 border border-slate-800 rounded p-1 text-center text-xs text-red-400 font-bold focus:outline-none">
+                            </div>
+                            <p class="text-[9px] text-slate-500 leading-normal">* ລາຍຊື່ໃນນີ້ຈະມີໂອກາດສຸ່ມຖືກຍາກກວ່າຊື່ທົ່ວໄປຕາມຈຳນວນເທົ່າທີ່ຕັ້ງໄວ້ (e.g. 10x, 50x lower odds).</p>
                         </div>
 
                         <div class="flex flex-wrap gap-1.5 border-t border-slate-800 pt-3">
@@ -1179,6 +1183,7 @@
             defaultEsiimsiNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
             removeEsiimsiWinner: true,
             esiimsiSubMode: 'fortune',
+            deprioritizedWeight: "10",
             winners: [],
             drawMode: 'wheel',
             wheelTheme: 'orangeBlue',
@@ -2635,11 +2640,15 @@
             const deprioText = deprioInput ? deprioInput.value : "";
             const deprioList = deprioText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             
+            // Get weight factor
+            const weightFactorInput = document.getElementById('deprioritizedWeightInput');
+            const weightFactor = weightFactorInput ? (parseInt(weightFactorInput.value) || 10) : 10;
+
             // Build weighted selection pool
             let weightedPool = [];
             available.forEach(name => {
                 const isDeprio = deprioList.includes(name);
-                const weight = isDeprio ? 1 : 10;
+                const weight = isDeprio ? 1 : weightFactor;
                 for (let i = 0; i < weight; i++) {
                     weightedPool.push(name);
                 }
@@ -2716,6 +2725,7 @@
                 removeEsiimsiWinner: appState.removeEsiimsiWinner,
                 esiimsiSubMode: appState.esiimsiSubMode,
                 deprioritizedNames: document.getElementById('deprioritizedNamesInput')?.value || "",
+                deprioritizedWeight: document.getElementById('deprioritizedWeightInput')?.value || "10",
                 effectType: appState.effectType,
                 logoData: appState.logoData,
                 mascotData: appState.mascotData,
@@ -2785,6 +2795,15 @@
                 } else {
                     if (document.getElementById('deprioritizedNamesInput')) {
                         document.getElementById('deprioritizedNamesInput').value = "";
+                    }
+                }
+                if (data.deprioritizedWeight !== undefined) {
+                    if (document.getElementById('deprioritizedWeightInput')) {
+                        document.getElementById('deprioritizedWeightInput').value = data.deprioritizedWeight;
+                    }
+                } else {
+                    if (document.getElementById('deprioritizedWeightInput')) {
+                        document.getElementById('deprioritizedWeightInput').value = "10";
                     }
                 }
 
@@ -3484,6 +3503,9 @@
                 }
                 setEsiimsiSubMode(appState.esiimsiSubMode || 'fortune');
                 updateEsiimsiCupLogo();
+                if (document.getElementById('deprioritizedWeightInput')) {
+                    document.getElementById('deprioritizedWeightInput').value = appState.deprioritizedWeight || "10";
+                }
                 updateWinnersTable();
                 updateRemainingTable();
                 initializeDefaultMedia();
