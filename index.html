@@ -281,21 +281,19 @@
             color: #7f1d1d;
             font-size: 11px;
             font-weight: 950;
+            display: inline-block;
+            transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
         }
         #esiimsiFallenStick .stick-body-content {
             flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            padding: 20px 4px;
-            writing-mode: vertical-lr;
-            font-weight: 900;
+            transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
             color: #7f1d1d;
-            font-size: 14px;
-            letter-spacing: 0.1em;
-            text-align: center;
+            font-size: 16px;
+            font-weight: 950;
+            white-space: nowrap;
         }
 
         /* Esiimsi Fortune Scroll styling */
@@ -695,6 +693,13 @@
                                 <input type="checkbox" id="removeEsiimsiWinnerToggle" class="w-4 h-4 text-cyan-600 bg-slate-950 border-slate-800 rounded focus:ring-cyan-500 cursor-pointer" checked>
                                 <label for="removeEsiimsiWinnerToggle" class="text-xs text-slate-300 cursor-pointer">ລຶບຊື່ອອກເມື່ອຊະນະແລ້ວ (ເຊຽມຊີ)</label>
                             </div>
+                        </div>
+
+                        <!-- Rarest Winners Configuration -->
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 flex flex-col gap-2 mt-2">
+                            <label class="block text-[10px] text-red-400 font-bold tech-font"><i class="fa-solid fa-triangle-exclamation mr-1"></i>RAREST WINNERS (ລາຍຊື່ທີ່ໃຫ້ສຸ່ມໄດ້ຍາກທີ່ສຸດ)</label>
+                            <textarea id="deprioritizedNamesInput" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-red-400 resize-none font-sans" placeholder="ຊື່ທີ່ຕ້ອງການໃຫ້ສຸ່ມໄດ້ຍາກທີ່ສຸດ (1 ຊື່ຕໍ່ແຖວ)..."></textarea>
+                            <p class="text-[9px] text-slate-500 leading-normal">* ລາຍຊື່ໃນນີ້ຈະມີໂອກາດສຸ່ມຖືກຍາກກວ່າຊື່ທົ່ວໄປ 10 ເທົ່າ (10x lower probability).</p>
                         </div>
 
                         <div class="flex flex-wrap gap-1.5 border-t border-slate-800 pt-3">
@@ -2198,6 +2203,18 @@
             fallenStick.style.bottom = '16px';
             fallenStick.style.left = '50%';
             fallenStick.style.transform = 'translateX(-50%) scale(0.6) rotate(0deg)';
+            
+            // Reset children rotations
+            const fsNo = document.getElementById('esiimsiFallenStickNo');
+            const fsName = document.getElementById('esiimsiFallenStickName');
+            if (fsNo) {
+                fsNo.style.transition = 'none';
+                fsNo.style.transform = 'rotate(0deg)';
+            }
+            if (fsName) {
+                fsName.style.transition = 'none';
+                fsName.style.transform = 'rotate(0deg)';
+            }
 
             // Add shake animations with random delays for organic clattering
             cup.classList.add('animate-cup-shake');
@@ -2241,6 +2258,18 @@
                 // Step 1: Rise up
                 fallenStick.style.display = 'flex';
                 fallenStick.classList.remove('hidden');
+                
+                const fsNo = document.getElementById('esiimsiFallenStickNo');
+                const fsName = document.getElementById('esiimsiFallenStickName');
+                if (fsNo) {
+                    fsNo.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                    fsNo.style.transform = 'rotate(0deg)';
+                }
+                if (fsName) {
+                    fsName.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                    fsName.style.transform = 'rotate(0deg)';
+                }
+                
                 setTimeout(() => {
                     fallenStick.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
                     // Slide up
@@ -2252,6 +2281,18 @@
                         // Drop down, turn horizontal, and scale up slightly
                         fallenStick.style.bottom = '20px';
                         fallenStick.style.transform = 'translateX(-50%) translateY(30px) rotate(90deg) scale(1.1)';
+                        
+                        // Counter-rotate child digits and text so they land upright (0deg absolute)
+                        const fsNo = document.getElementById('esiimsiFallenStickNo');
+                        const fsName = document.getElementById('esiimsiFallenStickName');
+                        if (fsNo) {
+                            fsNo.style.transition = 'all 1s cubic-bezier(0.19, 1, 0.22, 1)';
+                            fsNo.style.transform = 'rotate(-90deg)';
+                        }
+                        if (fsName) {
+                            fsName.style.transition = 'all 1s cubic-bezier(0.19, 1, 0.22, 1)';
+                            fsName.style.transform = 'rotate(-90deg)';
+                        }
                         
                         // Step 3: Trigger full screen modal celebration after stick settles
                         setTimeout(() => {
@@ -2589,7 +2630,24 @@
                 available = pool;
             }
             
-            const chosen = available[Math.floor(Math.random() * available.length)];
+            // Get deprioritized names
+            const deprioInput = document.getElementById('deprioritizedNamesInput');
+            const deprioText = deprioInput ? deprioInput.value : "";
+            const deprioList = deprioText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            
+            // Build weighted selection pool
+            let weightedPool = [];
+            available.forEach(name => {
+                const isDeprio = deprioList.includes(name);
+                const weight = isDeprio ? 1 : 10;
+                for (let i = 0; i < weight; i++) {
+                    weightedPool.push(name);
+                }
+            });
+            
+            if (weightedPool.length === 0) weightedPool = available;
+            
+            const chosen = weightedPool[Math.floor(Math.random() * weightedPool.length)];
             
             // Push to buffer and limit its size
             buffer.push(chosen);
@@ -2657,6 +2715,7 @@
                 removeWinner: appState.removeWinner,
                 removeEsiimsiWinner: appState.removeEsiimsiWinner,
                 esiimsiSubMode: appState.esiimsiSubMode,
+                deprioritizedNames: document.getElementById('deprioritizedNamesInput')?.value || "",
                 effectType: appState.effectType,
                 logoData: appState.logoData,
                 mascotData: appState.mascotData,
@@ -2718,6 +2777,15 @@
                     setEsiimsiSubMode(data.esiimsiSubMode);
                 } else {
                     setEsiimsiSubMode('fortune');
+                }
+                if (data.deprioritizedNames !== undefined) {
+                    if (document.getElementById('deprioritizedNamesInput')) {
+                        document.getElementById('deprioritizedNamesInput').value = data.deprioritizedNames;
+                    }
+                } else {
+                    if (document.getElementById('deprioritizedNamesInput')) {
+                        document.getElementById('deprioritizedNamesInput').value = "";
+                    }
                 }
 
                 if (data.drawMode) appState.drawMode = data.drawMode;
