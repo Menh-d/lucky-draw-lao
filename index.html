@@ -919,7 +919,7 @@
             </div>
 
             <!-- 2. Casino Slot Machine Cabinet — Vintage Red Style -->
-            <div id="slotContainer" class="hidden flex items-center justify-center" style="width:100%;height:100%;min-height:520px;">
+            <div id="slotContainer" class="hidden flex items-center justify-center" style="width:100%;height:100%;min-height:620px;">
                 <div style="position:relative; display:flex; flex-direction:row; align-items:stretch; height:100%; max-height:640px;">
 
                     <!-- ═══════════════════════════════ -->
@@ -927,7 +927,7 @@
                     <!-- ═══════════════════════════════ -->
                     <div id="slotCabinetBody" style="
                         position: relative;
-                        width: 420px;
+                        width: min(560px, 90vw);
                         display: flex;
                         flex-direction: column;
                         align-items: stretch;
@@ -986,7 +986,7 @@
                                     <!-- Reel window canvas -->
                                     <div id="slotLedFrame" style="
                                         position: relative;
-                                        height: 220px;
+                                        height: 280px;
                                         border-radius: 4px;
                                         overflow: hidden;
                                         background: #0a0a0a;
@@ -2192,7 +2192,6 @@
             slotCtx.clearRect(0, 0, w, h);
 
             if (appState.names.length === 0) {
-                // Cream background with "No Names" text
                 slotCtx.fillStyle = '#f5f0e8';
                 slotCtx.fillRect(0, 0, w, h);
                 slotCtx.fillStyle = '#888';
@@ -2203,37 +2202,40 @@
                 return;
             }
 
-            // Layout: 3 reels with dividers
             const dividerW = 20;
             const reelW = (w - dividerW * 2) / 3;
             const reelOffsets = [slotOffset, slotOffset2, slotOffset3];
 
             for (let reel = 0; reel < 3; reel++) {
-                const rx = reel * (reelW + dividerW); // reel x start
+                const rx = reel * (reelW + dividerW);
                 const cy = h / 2;
                 const offset = reelOffsets[reel];
 
-                // Clip to this reel column
                 slotCtx.save();
                 slotCtx.beginPath();
                 slotCtx.rect(rx, 0, reelW, h);
                 slotCtx.clip();
 
-                // Draw cream drum background with subtle gradient
+                // Cream drum background
                 const bgGrad = slotCtx.createLinearGradient(rx, 0, rx + reelW, 0);
-                bgGrad.addColorStop(0, '#e8e3d8');
-                bgGrad.addColorStop(0.15, '#f8f3ea');
-                bgGrad.addColorStop(0.5, '#faf6ee');
-                bgGrad.addColorStop(0.85, '#f5f0e6');
-                bgGrad.addColorStop(1, '#e0dbd0');
+                bgGrad.addColorStop(0,    '#e5dfd2');
+                bgGrad.addColorStop(0.12, '#f7f2e8');
+                bgGrad.addColorStop(0.5,  '#faf7f0');
+                bgGrad.addColorStop(0.88, '#f2ede2');
+                bgGrad.addColorStop(1,    '#ddd8cc');
                 slotCtx.fillStyle = bgGrad;
                 slotCtx.fillRect(rx, 0, reelW, h);
 
-                // Draw names scrolling on drum (cylinder perspective)
-                const cylinderRadius = h * 0.7;
-                for (let i = -3; i <= 5; i++) {
+                // ── KEY FIX ──
+                // distFromCenter = rawOffset (NOT rawOffset - cy)
+                // When offset = N * rowHeight and i=0: rawOffset=0, distFromCenter=0
+                // → projectedY = cy → name lands exactly at payline ✓
+                const cylinderRadius = h * 0.72;
+
+                for (let i = -3; i <= 3; i++) {
+                    // rawOffset=0 → center of drum → screen center (cy)
                     const rawOffset = (offset % rowHeight) + (i * rowHeight);
-                    const distFromCenter = rawOffset - cy;
+                    const distFromCenter = rawOffset; // ← FIXED (was rawOffset - cy)
                     const angleFraction = distFromCenter / cylinderRadius;
                     if (Math.abs(angleFraction) >= 1) continue;
                     const angle = Math.asin(Math.max(-1, Math.min(1, angleFraction)));
@@ -2245,44 +2247,41 @@
                     const safeIdx = ((idx % appState.names.length) + appState.names.length) % appState.names.length;
                     const name = appState.names[safeIdx] || '';
 
-                    const isCenter = Math.abs(angle) < 0.22;
-                    const alpha = Math.max(0, scaleY * 1.3 - 0.15);
+                    // isCenter: within ±10° of payline
+                    const isCenter = Math.abs(angle) < 0.18;
+                    const alpha = Math.max(0, scaleY * 1.25 - 0.1);
 
-                    // Draw row background (lighter for center)
-                    const rowH = rowHeight * scaleY;
                     slotCtx.save();
                     slotCtx.translate(rx + reelW / 2, projectedY);
                     slotCtx.scale(1, scaleY);
 
+                    // White highlight band for center row
                     if (isCenter && !blur) {
-                        // White highlight band for center row
-                        slotCtx.fillStyle = 'rgba(255,255,255,0.5)';
+                        slotCtx.fillStyle = 'rgba(255,255,255,0.55)';
                         slotCtx.fillRect(-reelW / 2, -rowHeight / 2, reelW, rowHeight);
                     }
 
-                    // Horizontal divider lines between rows
-                    slotCtx.strokeStyle = `rgba(80,60,40,${alpha * 0.35})`;
-                    slotCtx.lineWidth = 2;
+                    // Row divider lines
+                    slotCtx.strokeStyle = `rgba(80,60,40,${alpha * 0.3})`;
+                    slotCtx.lineWidth = 2 / scaleY;
                     slotCtx.beginPath();
                     slotCtx.moveTo(-reelW / 2, -rowHeight / 2);
-                    slotCtx.lineTo(reelW / 2, -rowHeight / 2);
+                    slotCtx.lineTo(reelW / 2,  -rowHeight / 2);
                     slotCtx.stroke();
 
-                    // Name text
+                    // Blur effect while spinning
                     if (blur) {
-                        slotCtx.shadowBlur = 6;
-                        slotCtx.shadowColor = 'rgba(0,0,0,0.3)';
-                    } else if (isCenter) {
-                        slotCtx.shadowBlur = 0;
+                        slotCtx.shadowBlur = 8;
+                        slotCtx.shadowColor = 'rgba(0,0,0,0.25)';
                     }
 
-                    // Center row: dark red bold text; others: muted brown
+                    // Text style
                     if (isCenter) {
-                        slotCtx.fillStyle = `rgba(140, 10, 10, ${alpha})`;
-                        slotCtx.font = "bold 100px 'Noto Sans Lao', sans-serif";
+                        slotCtx.fillStyle = `rgba(130, 8, 8, ${alpha})`;
+                        slotCtx.font = "bold 96px 'Noto Sans Lao', sans-serif";
                     } else {
-                        slotCtx.fillStyle = `rgba(100, 80, 70, ${alpha * 0.7})`;
-                        slotCtx.font = "bold 70px 'Noto Sans Lao', sans-serif";
+                        slotCtx.fillStyle = `rgba(90, 70, 60, ${alpha * 0.65})`;
+                        slotCtx.font = "bold 68px 'Noto Sans Lao', sans-serif";
                     }
                     slotCtx.textAlign = "center";
                     slotCtx.textBaseline = "middle";
