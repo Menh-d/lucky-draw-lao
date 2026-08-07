@@ -919,7 +919,7 @@
             </div>
 
             <!-- 2. Casino Slot Machine Cabinet — Vintage Red Style -->
-            <div id="slotContainer" class="hidden" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+            <div id="slotContainer" class="hidden w-full h-full flex items-center justify-center">
                 <div style="position:relative; display:flex; flex-direction:row; align-items:stretch; height:min(88vh,720px);">
 
                     <!-- ═══════════════════════════════ -->
@@ -2909,10 +2909,13 @@
         }
 
         function setDrawModeUI(mode) {
-            document.getElementById('wheelContainer').classList.add('hidden');
-            document.getElementById('slotContainer').classList.add('hidden');
-            document.getElementById('cardContainer').classList.add('hidden');
-            document.getElementById('esiimsiContainer').classList.add('hidden');
+            ['wheelContainer', 'slotContainer', 'cardContainer', 'esiimsiContainer'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                }
+            });
             document.getElementById('wheelThemeSection').classList.add('hidden');
             document.getElementById('cardCountSection').classList.add('hidden');
             if (document.getElementById('esiimsiModeSection')) {
@@ -2952,19 +2955,27 @@
             }
 
             if (mode === 'wheel') {
-                document.getElementById('wheelContainer').classList.remove('hidden');
+                const wEl = document.getElementById('wheelContainer');
+                wEl.classList.remove('hidden');
+                wEl.style.display = 'flex';
                 document.getElementById('wheelThemeSection').classList.remove('hidden');
                 drawWheel();
             } else if (mode === 'slot') {
-                document.getElementById('slotContainer').classList.remove('hidden');
+                const sEl = document.getElementById('slotContainer');
+                sEl.classList.remove('hidden');
+                sEl.style.display = 'flex';
                 createSlotLedLights();
                 drawSlotMachine();
             } else if (mode === 'cards') {
-                document.getElementById('cardContainer').classList.remove('hidden');
+                const cEl = document.getElementById('cardContainer');
+                cEl.classList.remove('hidden');
+                cEl.style.display = 'grid';
                 document.getElementById('cardCountSection').classList.remove('hidden');
                 setupCardsGrid(); 
             } else if (mode === 'raffle') {
-                document.getElementById('esiimsiContainer').classList.remove('hidden');
+                const eEl = document.getElementById('esiimsiContainer');
+                eEl.classList.remove('hidden');
+                eEl.style.display = 'flex';
                 if (document.getElementById('esiimsiModeSection')) {
                     document.getElementById('esiimsiModeSection').classList.remove('hidden');
                 }
