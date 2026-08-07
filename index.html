@@ -316,6 +316,10 @@
             border-radius: 2px;
         }
         
+        /* Side LED dot animations */
+        @keyframes sideLed1 { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.3; transform:scale(0.7); } }
+        @keyframes sideLed2 { 0%,100% { opacity:0.3; transform:scale(0.7); } 50% { opacity:1; transform:scale(1); } }
+
         /* Slot Machine cabinet sign pulse */
         @keyframes slotSignPulse {
             0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.6), inset 0 1px 2px rgba(255,255,255,0.4); filter: brightness(1); }
@@ -918,108 +922,271 @@
                 <canvas id="wheelCanvas" width="950" height="950" class="w-full h-full rounded-full" onmousedown="handleWheelDragStart(event)" onmousemove="handleWheelDrag(event)" onmouseup="handleWheelDragEnd()"></canvas>
             </div>
 
-            <!-- 2. Casino Slot Machine Cabinet -->
-            <div id="slotContainer" class="hidden w-full max-w-5xl flex items-center justify-center relative premium-shadow" style="perspective: 1200px;">
-                <!-- Cabinet body with 3D metallic look -->
-                <div class="w-full relative flex flex-col items-center" style="
-                    background: linear-gradient(180deg, #1e293b 0%, #0f172a 40%, #0a0f1e 100%);
-                    border-radius: 2.5rem;
-                    border: 8px solid #334155;
-                    box-shadow:
-                        0 0 0 3px #1e293b,
-                        0 0 0 6px #475569,
-                        0 0 0 9px #1e293b,
-                        inset 0 2px 6px rgba(255,255,255,0.08),
-                        0 40px 80px rgba(0,0,0,0.9),
-                        0 0 80px rgba(234,179,8,0.12);
-                    padding: 2.5rem 2.5rem 2rem;
+            <!-- 2. Casino Slot Machine Cabinet (Vertical, Realistic 3D) -->
+            <div id="slotContainer" class="hidden flex items-end justify-center relative" style="width:100%; height:100%; perspective:1600px; min-height:560px;">
+                
+                <!-- SLOT MACHINE BODY -->
+                <div style="
+                    display: flex;
+                    flex-direction: row;
+                    align-items: flex-end;
+                    justify-content: center;
+                    gap: 0;
+                    height: 100%;
                 ">
-                    <!-- TOP chrome sign -->
+                    <!-- ======= LEFT SIDE PANEL ======= -->
                     <div style="
-                        position: absolute;
-                        top: -22px;
-                        background: linear-gradient(90deg, #ca8a04, #fbbf24, #fef08a, #fbbf24, #ca8a04);
-                        color: #0f172a;
-                        padding: 6px 48px;
-                        border-radius: 9999px;
-                        font-size: 0.85rem;
-                        font-weight: 900;
-                        letter-spacing: 0.25em;
-                        border: 4px solid #0f172a;
-                        box-shadow: 0 0 30px rgba(251,191,36,0.6), inset 0 1px 2px rgba(255,255,255,0.4);
-                        animation: slotSignPulse 1.8s ease-in-out infinite;
-                        z-index: 10;
-                    ">🎰 CASINO GOLD SLOT 🎰</div>
+                        width: 60px; height: 85%;
+                        background: linear-gradient(180deg, #0f172a 0%, #1e293b 30%, #334155 60%, #1e293b 80%, #0f172a 100%);
+                        border-radius: 18px 0 0 18px;
+                        border-top: 5px solid #475569;
+                        border-left: 5px solid #475569;
+                        border-bottom: 5px solid #334155;
+                        box-shadow: -8px 8px 24px rgba(0,0,0,0.8), inset 2px 0 6px rgba(255,255,255,0.05);
+                        transform: perspective(800px) rotateY(12deg);
+                        transform-origin: right center;
+                        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+                        padding: 20px 8px;
+                    ">
+                        <!-- Side decorative lights -->
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #22d3ee, #0891b2); box-shadow:0 0 12px #22d3ee; animation: sideLed1 1s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #fbbf24, #d97706); box-shadow:0 0 12px #fbbf24; animation: sideLed2 1s 0.33s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #f472b6, #db2777); box-shadow:0 0 12px #f472b6; animation: sideLed1 1s 0.66s ease-in-out infinite;"></div>
+                        <div style="width:8px; flex:1; background:linear-gradient(180deg, transparent, #475569, transparent); border-radius:4px; margin:4px 0;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #a78bfa, #7c3aed); box-shadow:0 0 12px #a78bfa; animation: sideLed2 1s 0.5s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #34d399, #059669); box-shadow:0 0 12px #34d399; animation: sideLed1 1s 0.2s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #fb923c, #ea580c); box-shadow:0 0 12px #fb923c; animation: sideLed2 1s 0.8s ease-in-out infinite;"></div>
+                    </div>
 
-                    <!-- Left decorative chrome bars -->
+                    <!-- ======= MAIN CABINET FRONT ======= -->
                     <div style="
-                        position: absolute; left: 24px; top: 70px; bottom: 70px; width: 14px;
-                        background: linear-gradient(180deg, #475569, #94a3b8, #64748b, #94a3b8, #475569);
-                        border-radius: 7px;
-                        box-shadow: inset 0 0 6px rgba(255,255,255,0.2), 2px 0 8px rgba(0,0,0,0.5);
-                    "></div>
-                    <div style="
-                        position: absolute; right: 24px; top: 70px; bottom: 70px; width: 14px;
-                        background: linear-gradient(180deg, #475569, #94a3b8, #64748b, #94a3b8, #475569);
-                        border-radius: 7px;
-                        box-shadow: inset 0 0 6px rgba(255,255,255,0.2), -2px 0 8px rgba(0,0,0,0.5);
-                    "></div>
-
-                    <!-- Slot reel frame (LED border + canvas) -->
-                    <div id="slotLedFrame" style="
-                        width: 100%;
-                        height: 420px;
-                        background: #020617;
-                        border-radius: 1.5rem;
-                        border: 10px solid #1e293b;
+                        width: 420px;
+                        min-height: 620px;
+                        background: linear-gradient(180deg, #0f172a 0%, #1a2540 15%, #1e293b 85%, #0f172a 100%);
+                        border-top: 6px solid #475569;
+                        border-bottom: 6px solid #334155;
+                        box-shadow:
+                            0 0 0 2px #334155,
+                            0 30px 80px rgba(0,0,0,0.95),
+                            inset 0 1px 0 rgba(255,255,255,0.08),
+                            0 0 100px rgba(234,179,8,0.08);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
                         position: relative;
                         overflow: visible;
-                        box-shadow:
-                            inset 0 0 60px rgba(0,0,0,0.9),
-                            inset 0 0 20px rgba(34,211,238,0.05),
-                            0 0 60px rgba(234,179,8,0.2);
-                        margin-top: 1.5rem;
                     ">
-                        <canvas id="slotCanvas" width="1400" height="400" style="width:100%; height:100%; border-radius: 1rem; display:block;"></canvas>
-                        <!-- Top/bottom gradient mask for cylinder illusion -->
-                        <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.75) 100%); pointer-events:none; border-radius: 1rem;"></div>
-                        <!-- Center payline highlight -->
-                        <div style="position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:90px; border-top: 3px solid rgba(234,179,8,0.5); border-bottom: 3px solid rgba(234,179,8,0.5); background: rgba(234,179,8,0.04); pointer-events:none; box-shadow: 0 0 30px rgba(234,179,8,0.15);"></div>
-                        <!-- Payline center arrow markers -->
-                        <div style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#fbbf24; font-size:1.5rem; filter: drop-shadow(0 0 8px #fbbf24); pointer-events:none;">▶</div>
-                        <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:#fbbf24; font-size:1.5rem; filter: drop-shadow(0 0 8px #fbbf24); pointer-events:none;">◀</div>
-                    </div>
 
-                    <!-- Bottom decorative panel with SPIN button -->
-                    <div style="display:flex; align-items:center; justify-content:center; gap:2rem; margin-top:1.5rem; width:100%;">
-                        <div style="flex:1; height:3px; background:linear-gradient(90deg, transparent, #475569, transparent); border-radius:2px;"></div>
-                        <button onclick="pullSlotLever()" style="
-                            background: linear-gradient(135deg, #dc2626, #991b1b);
-                            color: white;
-                            font-weight: 900;
-                            font-size: 1.1rem;
-                            letter-spacing: 0.1em;
-                            padding: 14px 48px;
-                            border-radius: 9999px;
-                            border: 4px solid #7f1d1d;
-                            box-shadow: 0 0 30px rgba(220,38,38,0.6), inset 0 2px 4px rgba(255,255,255,0.2), 0 6px 0 #7f1d1d;
+                        <!-- ── TOP MARQUEE SIGN ── -->
+                        <div style="
+                            width: 100%;
+                            background: linear-gradient(180deg, #1a0a00 0%, #3d1a00 100%);
+                            border-bottom: 4px solid #92400e;
+                            padding: 14px 12px 12px;
+                            display: flex; flex-direction: column; align-items: center; gap: 6px;
+                        ">
+                            <!-- Neon "LUCKY DRAW" text -->
+                            <div style="
+                                font-size: 1.6rem; font-weight: 900; letter-spacing: 0.2em;
+                                color: #fef08a;
+                                text-shadow: 0 0 10px #fbbf24, 0 0 30px #f59e0b, 0 0 60px #d97706;
+                                animation: slotSignPulse 2s ease-in-out infinite;
+                                font-family: monospace;
+                            ">🎰 LUCKY DRAW 🎰</div>
+                            <!-- LED strip under title -->
+                            <div style="display:flex; gap:5px; padding: 4px 0;">
+                                <div style="width:9px;height:9px;border-radius:50%;background:#22d3ee;box-shadow:0 0 8px #22d3ee;animation:ledFlash1 0.5s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#fbbf24;box-shadow:0 0 8px #fbbf24;animation:ledFlash2 0.5s 0.1s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#f472b6;box-shadow:0 0 8px #f472b6;animation:ledFlash3 0.5s 0.2s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#a78bfa;box-shadow:0 0 8px #a78bfa;animation:ledFlash4 0.5s 0.3s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;animation:ledFlash1 0.5s 0.4s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#fb923c;box-shadow:0 0 8px #fb923c;animation:ledFlash2 0.5s 0.5s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#22d3ee;box-shadow:0 0 8px #22d3ee;animation:ledFlash3 0.5s 0.6s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#fbbf24;box-shadow:0 0 8px #fbbf24;animation:ledFlash4 0.5s 0.7s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#f472b6;box-shadow:0 0 8px #f472b6;animation:ledFlash1 0.5s 0.8s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#a78bfa;box-shadow:0 0 8px #a78bfa;animation:ledFlash2 0.5s 0.9s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;animation:ledFlash3 0.5s 1s infinite;"></div>
+                                <div style="width:9px;height:9px;border-radius:50%;background:#fb923c;box-shadow:0 0 8px #fb923c;animation:ledFlash4 0.5s 1.1s infinite;"></div>
+                            </div>
+                        </div>
+
+                        <!-- ── REEL WINDOW ── -->
+                        <div style="
+                            width: calc(100% - 40px);
+                            margin: 18px auto 0;
+                            position: relative;
+                        ">
+                            <!-- Chrome bezel around screen -->
+                            <div style="
+                                padding: 10px;
+                                background: linear-gradient(135deg, #94a3b8 0%, #475569 30%, #64748b 50%, #475569 70%, #94a3b8 100%);
+                                border-radius: 18px;
+                                box-shadow:
+                                    inset 0 2px 4px rgba(255,255,255,0.25),
+                                    inset 0 -2px 4px rgba(0,0,0,0.5),
+                                    0 0 0 3px #1e293b,
+                                    0 8px 30px rgba(0,0,0,0.7);
+                            ">
+                                <!-- Screen itself -->
+                                <div id="slotLedFrame" style="
+                                    width: 100%;
+                                    height: 340px;
+                                    background: #010b14;
+                                    border-radius: 10px;
+                                    position: relative;
+                                    overflow: hidden;
+                                    box-shadow: inset 0 0 80px rgba(0,0,0,0.95), inset 0 0 30px rgba(34,211,238,0.04);
+                                ">
+                                    <canvas id="slotCanvas" width="800" height="680" style="width:100%; height:100%; display:block;"></canvas>
+                                    <!-- Top/bottom fade mask -->
+                                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 28%,transparent 72%,rgba(0,0,0,0.8) 100%);pointer-events:none;"></div>
+                                    <!-- Payline -->
+                                    <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:74px;border-top:2px solid rgba(251,191,36,0.6);border-bottom:2px solid rgba(251,191,36,0.6);background:rgba(251,191,36,0.03);pointer-events:none;box-shadow:0 0 20px rgba(251,191,36,0.12);"></div>
+                                    <!-- CRT scanline overlay -->
+                                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);pointer-events:none;opacity:0.6;"></div>
+                                    <!-- Screen glare -->
+                                    <div style="position:absolute;top:0;left:0;right:0;height:35%;background:linear-gradient(180deg,rgba(255,255,255,0.04),transparent);pointer-events:none;border-radius:10px 10px 0 0;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Payline label -->
+                            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;">
+                                <div style="height:1px;flex:1;background:linear-gradient(90deg,transparent,#92400e);"></div>
+                                <span style="color:#d97706;font-size:0.65rem;font-weight:700;letter-spacing:0.15em;">PAY LINE</span>
+                                <div style="height:1px;flex:1;background:linear-gradient(90deg,#92400e,transparent);"></div>
+                            </div>
+                        </div>
+
+                        <!-- ── MIDDLE DECORATIVE PANEL ── -->
+                        <div style="
+                            width: calc(100% - 40px);
+                            margin: 14px auto 0;
+                            background: linear-gradient(180deg, #1e293b, #0f172a);
+                            border: 2px solid #334155;
+                            border-radius: 10px;
+                            padding: 10px 16px;
+                            display: flex; align-items: center; justify-content: space-between;
+                        ">
+                            <!-- Credit display -->
+                            <div style="text-align:center;">
+                                <div style="color:#64748b;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;">CREDITS</div>
+                                <div style="color:#22d3ee;font-size:1.2rem;font-weight:900;font-family:monospace;text-shadow:0 0 10px #22d3ee;" id="slotCreditDisplay">100</div>
+                            </div>
+                            <!-- Spin button (large arcade button) -->
+                            <div style="position:relative;">
+                                <button onclick="pullSlotLever()" id="slotSpinBtn" style="
+                                    width: 90px; height: 90px; border-radius: 50%;
+                                    background: radial-gradient(circle at 35% 35%, #ef4444, #991b1b 60%, #7f1d1d);
+                                    border: 5px solid #7f1d1d;
+                                    box-shadow:
+                                        0 0 30px rgba(239,68,68,0.7),
+                                        0 8px 0 #450a0a,
+                                        inset 0 2px 6px rgba(255,255,255,0.25),
+                                        inset 0 -2px 4px rgba(0,0,0,0.4);
+                                    color: white; font-weight: 900; font-size: 0.85rem;
+                                    letter-spacing: 0.05em; cursor: pointer;
+                                    transition: all 0.1s ease;
+                                    display: flex; align-items: center; justify-content: center;
+                                    flex-direction: column; gap: 2px;
+                                " onmousedown="this.style.transform='translateY(6px)';this.style.boxShadow='0 0 20px rgba(239,68,68,0.5),0 2px 0 #450a0a,inset 0 2px 6px rgba(255,255,255,0.1)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 0 30px rgba(239,68,68,0.7),0 8px 0 #450a0a,inset 0 2px 6px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 0 30px rgba(239,68,68,0.7),0 8px 0 #450a0a,inset 0 2px 6px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)'">
+                                    <span style="font-size:1.4rem;">🎰</span>
+                                    <span>SPIN</span>
+                                </button>
+                            </div>
+                            <!-- Win display -->
+                            <div style="text-align:center;">
+                                <div style="color:#64748b;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;">WIN</div>
+                                <div style="color:#fbbf24;font-size:1.2rem;font-weight:900;font-family:monospace;text-shadow:0 0 10px #fbbf24;" id="slotWinDisplay">0</div>
+                            </div>
+                        </div>
+
+                        <!-- ── COIN TRAY ── -->
+                        <div style="
+                            width: calc(100% - 60px);
+                            margin: 14px auto 0;
+                            height: 40px;
+                            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+                            border: 3px solid #334155;
+                            border-radius: 0 0 20px 20px;
+                            border-top: none;
+                            box-shadow: inset 0 4px 10px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.4);
+                            display: flex; align-items: center; justify-content: center;
+                        ">
+                            <div style="width:80px; height:12px; background:#0f172a; border:2px solid #334155; border-radius:6px; box-shadow:inset 0 2px 6px rgba(0,0,0,0.8);"></div>
+                        </div>
+
+                        <!-- bottom padding -->
+                        <div style="height: 16px;"></div>
+
+                        <!-- ── SIDE LEVER (mounted on right side of cabinet) ── -->
+                        <div id="slotLever" onclick="pullSlotLever()" style="
+                            position: absolute;
+                            right: -44px;
+                            top: 50%;
+                            transform: translateY(-60%);
                             cursor: pointer;
-                            transition: all 0.12s ease;
-                            transform: translateY(0);
-                        " onmousedown="this.style.transform='translateY(4px)'; this.style.boxShadow='0 0 20px rgba(220,38,38,0.4), inset 0 2px 4px rgba(255,255,255,0.1), 0 2px 0 #7f1d1d';"
-                           onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 30px rgba(220,38,38,0.6), inset 0 2px 4px rgba(255,255,255,0.2), 0 6px 0 #7f1d1d';">
-                            🎰 SPIN
-                        </button>
-                        <div style="flex:1; height:3px; background:linear-gradient(90deg, transparent, #475569, transparent); border-radius:2px;"></div>
-                    </div>
-                </div>
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            width: 40px;
+                            height: 180px;
+                        ">
+                            <!-- Lever ball (handle) -->
+                            <div id="leverBall" style="
+                                width: 42px; height: 42px; border-radius: 50%;
+                                background: radial-gradient(circle at 35% 35%, #ef4444, #991b1b);
+                                box-shadow: 0 0 20px rgba(239,68,68,0.8), 0 4px 12px rgba(0,0,0,0.6);
+                                transition: transform 0.15s ease;
+                                flex-shrink: 0;
+                            "></div>
+                            <!-- Lever shaft -->
+                            <div class="lever-shaft" style="
+                                width: 10px;
+                                flex: 1;
+                                background: linear-gradient(90deg, #94a3b8, #e2e8f0, #94a3b8);
+                                border-radius: 5px;
+                                box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+                                transform-origin: bottom center;
+                            "></div>
+                            <!-- Lever base mount -->
+                            <div style="
+                                width: 28px; height: 22px;
+                                background: linear-gradient(180deg, #475569, #334155);
+                                border-radius: 6px 6px 3px 3px;
+                                border: 2px solid #64748b;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+                                flex-shrink: 0;
+                            "></div>
+                        </div>
 
-                <!-- Physical Side Lever -->
-                <div id="slotLever" class="w-20 h-60 relative -ml-3 flex flex-col items-center cursor-pointer" onclick="pullSlotLever()" style="flex-shrink:0;">
-                    <div class="w-4 h-40 bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 rounded-b-lg lever-shaft origin-bottom shadow-2xl"></div>
-                    <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 rounded-full absolute top-0 shadow-[0_0_30px_rgba(239,68,68,0.8)] -translate-y-6 active:scale-95 transition" id="leverBall"></div>
-                    <div class="w-16 h-14 bg-slate-800 border-2 border-slate-700 rounded-t-2xl absolute bottom-0 shadow-2xl"></div>
-                </div>
+                    </div><!-- end main cabinet front -->
+
+                    <!-- ======= RIGHT SIDE PANEL ======= -->
+                    <div style="
+                        width: 60px; height: 85%;
+                        background: linear-gradient(180deg, #0f172a 0%, #1e293b 30%, #334155 60%, #1e293b 80%, #0f172a 100%);
+                        border-radius: 0 18px 18px 0;
+                        border-top: 5px solid #475569;
+                        border-right: 5px solid #475569;
+                        border-bottom: 5px solid #334155;
+                        box-shadow: 8px 8px 24px rgba(0,0,0,0.8), inset -2px 0 6px rgba(255,255,255,0.05);
+                        transform: perspective(800px) rotateY(-12deg);
+                        transform-origin: left center;
+                        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+                        padding: 20px 8px;
+                    ">
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #fb923c, #ea580c); box-shadow:0 0 12px #fb923c; animation: sideLed2 1s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #a78bfa, #7c3aed); box-shadow:0 0 12px #a78bfa; animation: sideLed1 1s 0.4s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #22d3ee, #0891b2); box-shadow:0 0 12px #22d3ee; animation: sideLed2 1s 0.8s ease-in-out infinite;"></div>
+                        <div style="width:8px; flex:1; background:linear-gradient(180deg, transparent, #475569, transparent); border-radius:4px; margin:4px 0;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #fbbf24, #d97706); box-shadow:0 0 12px #fbbf24; animation: sideLed1 1s 0.2s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #f472b6, #db2777); box-shadow:0 0 12px #f472b6; animation: sideLed2 1s 0.6s ease-in-out infinite;"></div>
+                        <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, #34d399, #059669); box-shadow:0 0 12px #34d399; animation: sideLed1 1s 1s ease-in-out infinite;"></div>
+                    </div>
+
+                </div><!-- end flex row -->
             </div>
 
             <!-- 3. Card Flip Grid -->
@@ -2060,7 +2227,7 @@
         function drawSlotMachine(blur = false) {
             const w = slotCanvas.width;
             const h = slotCanvas.height;
-            const rowHeight = 130;  // Taller rows for bigger canvas
+            const rowHeight = 140;  // Taller rows for bigger canvas
             slotCtx.clearRect(0, 0, w, h);
 
             if (appState.names.length === 0) {
@@ -2144,6 +2311,16 @@
             if (appState.isDrawing) return;
             const lever = document.getElementById('slotLever');
             lever.classList.add('lever-pulled');
+            // Animate lever ball drop
+            const ball = document.getElementById('leverBall');
+            if (ball) { ball.style.transform = 'translateY(60px) scale(0.9)'; setTimeout(() => { ball.style.transform = ''; }, 400); }
+            // Deduct credit
+            const creditEl = document.getElementById('slotCreditDisplay');
+            if (creditEl) {
+                let c = parseInt(creditEl.textContent) || 100;
+                if (c <= 0) c = 100;
+                creditEl.textContent = c - 1;
+            }
             setTimeout(() => {
                 lever.classList.remove('lever-pulled');
                 startDraw();
@@ -2164,7 +2341,7 @@
                 requestAnimationFrame(() => runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset));
             } else {
                 isSlotSpinning = false;
-                const rowHeight = 130;
+                const rowHeight = 140;
                 slotOffset = Math.round(slotOffset / rowHeight) * rowHeight;
                 drawSlotMachine(false);
                 
