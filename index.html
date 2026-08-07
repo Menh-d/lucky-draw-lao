@@ -919,27 +919,29 @@
             </div>
 
             <!-- 2. Casino Slot Machine Cabinet — Vintage Red Style -->
-            <div id="slotContainer" class="hidden flex items-center justify-center" style="width:100%;height:100%;min-height:620px;">
-                <div style="position:relative; display:flex; flex-direction:row; align-items:stretch; height:100%; max-height:640px;">
+            <div id="slotContainer" class="hidden flex items-center justify-center" style="width:100%;height:100%;">
+                <div style="position:relative; display:flex; flex-direction:row; align-items:stretch; width:100%; height:100%; max-height:100%;">
 
                     <!-- ═══════════════════════════════ -->
                     <!-- MAIN CABINET BODY              -->
                     <!-- ═══════════════════════════════ -->
                     <div id="slotCabinetBody" style="
                         position: relative;
-                        width: min(560px, 90vw);
+                        width: calc(100% - 80px);
+                        flex: 1;
                         display: flex;
                         flex-direction: column;
                         align-items: stretch;
                         background: linear-gradient(160deg, #e02020 0%, #cc1a1a 35%, #b01515 65%, #8b0000 100%);
                         border-radius: 28px 28px 16px 16px;
                         box-shadow:
-                            inset 2px 2px 0 rgba(255,120,120,0.35),
-                            inset -2px -2px 0 rgba(0,0,0,0.25),
-                            0 0 0 3px #6b0000,
-                            6px 12px 40px rgba(0,0,0,0.85),
-                            20px 20px 60px rgba(0,0,0,0.5);
+                            inset 3px 3px 0 rgba(255,140,140,0.35),
+                            inset -3px -3px 0 rgba(0,0,0,0.25),
+                            0 0 0 4px #6b0000,
+                            8px 16px 50px rgba(0,0,0,0.9),
+                            24px 24px 70px rgba(0,0,0,0.5);
                         overflow: visible;
+                        min-height: 0;
                     ">
                         <!-- Glossy top highlight -->
                         <div style="
@@ -960,128 +962,142 @@
 
                         <!-- ── REEL SECTION (upper half of cabinet) ── -->
                         <div style="
-                            flex-shrink: 0;
-                            padding: 18px 24px 12px;
+                            flex: 3;
+                            min-height: 0;
+                            padding: 20px 28px 16px;
                             background: linear-gradient(180deg, #c01818 0%, #b51515 100%);
-                            border-bottom: 5px solid #6b0000;
+                            border-bottom: 6px solid #6b0000;
+                            display: flex;
+                            flex-direction: column;
                         ">
                             <!-- Chrome bezel frame -->
                             <div style="
-                                padding: 8px;
-                                border-radius: 12px;
-                                background: linear-gradient(135deg, #e8e8e8 0%, #a0a0a0 30%, #d0d0d0 50%, #909090 70%, #c8c8c8 100%);
+                                flex: 1;
+                                min-height: 0;
+                                padding: 10px;
+                                border-radius: 14px;
+                                background: linear-gradient(135deg, #ececec 0%, #aaa 25%, #ddd 50%, #999 75%, #ccc 100%);
                                 box-shadow:
-                                    0 0 0 2px #888,
-                                    inset 0 2px 4px rgba(255,255,255,0.5),
-                                    inset 0 -2px 4px rgba(0,0,0,0.4),
-                                    0 4px 16px rgba(0,0,0,0.6);
+                                    0 0 0 3px #888,
+                                    inset 0 3px 6px rgba(255,255,255,0.6),
+                                    inset 0 -3px 6px rgba(0,0,0,0.45),
+                                    0 6px 20px rgba(0,0,0,0.65);
+                                display: flex;
+                                flex-direction: column;
                             ">
                                 <!-- Inner dark rim -->
                                 <div style="
-                                    padding: 6px;
-                                    border-radius: 7px;
+                                    flex: 1;
+                                    min-height: 0;
+                                    padding: 8px;
+                                    border-radius: 8px;
                                     background: #111;
-                                    box-shadow: inset 0 4px 20px rgba(0,0,0,0.9);
+                                    box-shadow: inset 0 6px 25px rgba(0,0,0,0.95);
+                                    display: flex;
+                                    flex-direction: column;
                                 ">
                                     <!-- Reel window canvas -->
                                     <div id="slotLedFrame" style="
                                         position: relative;
-                                        height: 280px;
-                                        border-radius: 4px;
+                                        flex: 1;
+                                        min-height: 0;
+                                        border-radius: 5px;
                                         overflow: hidden;
                                         background: #0a0a0a;
-                                        box-shadow: inset 0 0 30px rgba(0,0,0,0.95);
+                                        box-shadow: inset 0 0 40px rgba(0,0,0,0.98);
                                     ">
-                                        <canvas id="slotCanvas" width="960" height="660" style="width:100%; height:100%; display:block;"></canvas>
+                                        <canvas id="slotCanvas" width="960" height="660" style="width:100%; height:100%; display:block; object-fit:fill;"></canvas>
                                         <!-- Top shadow mask -->
-                                        <div style="position:absolute;top:0;left:0;right:0;height:28%;background:linear-gradient(180deg,rgba(0,0,0,0.85),transparent);pointer-events:none;"></div>
+                                        <div style="position:absolute;top:0;left:0;right:0;height:26%;background:linear-gradient(180deg,rgba(0,0,0,0.88),transparent);pointer-events:none;"></div>
                                         <!-- Bottom shadow mask -->
-                                        <div style="position:absolute;bottom:0;left:0;right:0;height:28%;background:linear-gradient(0deg,rgba(0,0,0,0.85),transparent);pointer-events:none;"></div>
-                                        <!-- Payline thin line -->
-                                        <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:2px;background:rgba(255,200,0,0.4);pointer-events:none;box-shadow:0 0 8px rgba(255,200,0,0.5);"></div>
+                                        <div style="position:absolute;bottom:0;left:0;right:0;height:26%;background:linear-gradient(0deg,rgba(0,0,0,0.88),transparent);pointer-events:none;"></div>
+                                        <!-- Payline golden line -->
+                                        <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:3px;background:rgba(255,210,0,0.5);pointer-events:none;box-shadow:0 0 14px rgba(255,210,0,0.6);"></div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> <!-- end reel section -->
 
                         <!-- ── CONTROL PANEL (lower section) ── -->
                         <div style="
                             flex: 1;
+                            min-height: 0;
                             background: linear-gradient(180deg, #b01515 0%, #a01212 60%, #8b0000 100%);
                             display: flex;
                             flex-direction: column;
                             align-items: center;
-                            padding: 16px 20px 12px;
-                            gap: 14px;
+                            justify-content: center;
+                            padding: 20px 28px 16px;
+                            gap: 18px;
                         ">
-                            <!-- 4 chrome push buttons + 1 round -->
-                            <div style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%;">
-                                <!-- 4 rectangular chrome buttons -->
+                            <!-- 4 chrome push buttons + 1 round (all bigger) -->
+                            <div style="display:flex; align-items:center; justify-content:center; gap:16px; width:100%;">
+                                <!-- Rectangular chrome buttons -->
                                 <button onclick="pullSlotLever()" style="
-                                    width: 52px; height: 32px; border-radius: 6px;
-                                    background: linear-gradient(180deg, #d0d0d0 0%, #a0a0a0 40%, #888 60%, #b0b0b0 100%);
+                                    flex:1; max-width:110px; height:46px; border-radius:8px;
+                                    background: linear-gradient(180deg, #d8d8d8 0%, #aaa 40%, #909090 60%, #bbb 100%);
                                     border: 2px solid #666;
-                                    box-shadow: 0 4px 0 #555, inset 0 1px 2px rgba(255,255,255,0.6);
+                                    box-shadow: 0 6px 0 #555, inset 0 2px 3px rgba(255,255,255,0.65);
                                     cursor: pointer; transition: all 0.1s;
-                                    font-size: 0.5rem; font-weight:700; color:#444; letter-spacing:0.05em;
-                                " onmousedown="this.style.transform='translateY(3px)';this.style.boxShadow='0 1px 0 #555,inset 0 1px 2px rgba(255,255,255,0.3)'"
-                                   onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'"
-                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'">BET 1</button>
+                                    font-size: 0.75rem; font-weight:800; color:#444; letter-spacing:0.06em;
+                                " onmousedown="this.style.transform='translateY(5px)';this.style.boxShadow='0 1px 0 #555,inset 0 2px 3px rgba(255,255,255,0.3)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'">BET 1</button>
                                 <button onclick="pullSlotLever()" style="
-                                    width: 52px; height: 32px; border-radius: 6px;
-                                    background: linear-gradient(180deg, #d0d0d0 0%, #a0a0a0 40%, #888 60%, #b0b0b0 100%);
+                                    flex:1; max-width:110px; height:46px; border-radius:8px;
+                                    background: linear-gradient(180deg, #d8d8d8 0%, #aaa 40%, #909090 60%, #bbb 100%);
                                     border: 2px solid #666;
-                                    box-shadow: 0 4px 0 #555, inset 0 1px 2px rgba(255,255,255,0.6);
+                                    box-shadow: 0 6px 0 #555, inset 0 2px 3px rgba(255,255,255,0.65);
                                     cursor: pointer; transition: all 0.1s;
-                                    font-size: 0.5rem; font-weight:700; color:#444; letter-spacing:0.05em;
-                                " onmousedown="this.style.transform='translateY(3px)';this.style.boxShadow='0 1px 0 #555,inset 0 1px 2px rgba(255,255,255,0.3)'"
-                                   onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'"
-                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'">BET 2</button>
+                                    font-size: 0.75rem; font-weight:800; color:#444; letter-spacing:0.06em;
+                                " onmousedown="this.style.transform='translateY(5px)';this.style.boxShadow='0 1px 0 #555,inset 0 2px 3px rgba(255,255,255,0.3)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'">BET 2</button>
                                 <button onclick="pullSlotLever()" style="
-                                    width: 52px; height: 32px; border-radius: 6px;
-                                    background: linear-gradient(180deg, #d0d0d0 0%, #a0a0a0 40%, #888 60%, #b0b0b0 100%);
+                                    flex:1; max-width:110px; height:46px; border-radius:8px;
+                                    background: linear-gradient(180deg, #d8d8d8 0%, #aaa 40%, #909090 60%, #bbb 100%);
                                     border: 2px solid #666;
-                                    box-shadow: 0 4px 0 #555, inset 0 1px 2px rgba(255,255,255,0.6);
+                                    box-shadow: 0 6px 0 #555, inset 0 2px 3px rgba(255,255,255,0.65);
                                     cursor: pointer; transition: all 0.1s;
-                                    font-size: 0.5rem; font-weight:700; color:#444; letter-spacing:0.05em;
-                                " onmousedown="this.style.transform='translateY(3px)';this.style.boxShadow='0 1px 0 #555,inset 0 1px 2px rgba(255,255,255,0.3)'"
-                                   onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'"
-                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'">MAX</button>
+                                    font-size: 0.75rem; font-weight:800; color:#444; letter-spacing:0.06em;
+                                " onmousedown="this.style.transform='translateY(5px)';this.style.boxShadow='0 1px 0 #555,inset 0 2px 3px rgba(255,255,255,0.3)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'">MAX</button>
                                 <button onclick="pullSlotLever()" style="
-                                    width: 52px; height: 32px; border-radius: 6px;
-                                    background: linear-gradient(180deg, #d0d0d0 0%, #a0a0a0 40%, #888 60%, #b0b0b0 100%);
+                                    flex:1; max-width:110px; height:46px; border-radius:8px;
+                                    background: linear-gradient(180deg, #d8d8d8 0%, #aaa 40%, #909090 60%, #bbb 100%);
                                     border: 2px solid #666;
-                                    box-shadow: 0 4px 0 #555, inset 0 1px 2px rgba(255,255,255,0.6);
+                                    box-shadow: 0 6px 0 #555, inset 0 2px 3px rgba(255,255,255,0.65);
                                     cursor: pointer; transition: all 0.1s;
-                                    font-size: 0.5rem; font-weight:700; color:#444; letter-spacing:0.05em;
-                                " onmousedown="this.style.transform='translateY(3px)';this.style.boxShadow='0 1px 0 #555,inset 0 1px 2px rgba(255,255,255,0.3)'"
-                                   onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'"
-                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 0 #555,inset 0 1px 2px rgba(255,255,255,0.6)'">LINES</button>
-                                <!-- Round SPIN button -->
+                                    font-size: 0.75rem; font-weight:800; color:#444; letter-spacing:0.06em;
+                                " onmousedown="this.style.transform='translateY(5px)';this.style.boxShadow='0 1px 0 #555,inset 0 2px 3px rgba(255,255,255,0.3)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #555,inset 0 2px 3px rgba(255,255,255,0.65)'">LINES</button>
+                                <!-- Round SPIN button (bigger) -->
                                 <button onclick="pullSlotLever()" style="
-                                    width: 50px; height: 50px; border-radius: 50%;
-                                    background: radial-gradient(circle at 38% 35%, #e0e0e0, #a0a0a0 55%, #888);
-                                    border: 3px solid #666;
-                                    box-shadow: 0 5px 0 #444, 0 8px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.7);
+                                    width: 80px; height: 80px; border-radius: 50%; flex-shrink:0;
+                                    background: radial-gradient(circle at 38% 35%, #e8e8e8, #b0b0b0 50%, #909090);
+                                    border: 4px solid #666;
+                                    box-shadow: 0 8px 0 #444, 0 12px 18px rgba(0,0,0,0.55), inset 0 3px 6px rgba(255,255,255,0.75);
                                     cursor: pointer; transition: all 0.1s;
-                                    font-size: 0.55rem; font-weight:900; color:#333;
-                                " onmousedown="this.style.transform='translateY(4px)';this.style.boxShadow='0 1px 0 #444,0 3px 8px rgba(0,0,0,0.4),inset 0 2px 4px rgba(255,255,255,0.4)'"
-                                   onmouseup="this.style.transform='';this.style.boxShadow='0 5px 0 #444,0 8px 12px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.7)'"
-                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 5px 0 #444,0 8px 12px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.7)'">SPIN</button>
+                                    font-size: 0.85rem; font-weight:900; color:#333; letter-spacing:0.05em;
+                                " onmousedown="this.style.transform='translateY(6px)';this.style.boxShadow='0 2px 0 #444,0 4px 10px rgba(0,0,0,0.4),inset 0 3px 6px rgba(255,255,255,0.45)'"
+                                   onmouseup="this.style.transform='';this.style.boxShadow='0 8px 0 #444,0 12px 18px rgba(0,0,0,0.55),inset 0 3px 6px rgba(255,255,255,0.75)'"
+                                   onmouseleave="this.style.transform='';this.style.boxShadow='0 8px 0 #444,0 12px 18px rgba(0,0,0,0.55),inset 0 3px 6px rgba(255,255,255,0.75)'">SPIN</button>
                             </div>
 
-                            <!-- Coin tray slot -->
+                            <!-- Coin tray slot (bigger) -->
                             <div style="
-                                width: calc(100% - 20px);
-                                height: 36px;
-                                border-radius: 8px;
-                                background: linear-gradient(180deg, #6b0000 0%, #0a0a0a 100%);
-                                border: 3px solid #888;
-                                box-shadow: inset 0 3px 10px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.4);
+                                width: calc(100% - 40px);
+                                height: 52px;
+                                border-radius: 12px;
+                                background: linear-gradient(180deg, #5a0000 0%, #0a0a0a 100%);
+                                border: 4px solid #999;
+                                box-shadow: inset 0 5px 14px rgba(0,0,0,0.85), 0 3px 6px rgba(0,0,0,0.45), inset 0 -2px 4px rgba(255,255,255,0.04);
                                 display: flex; align-items: center; justify-content: center;
                                 margin-top: auto;
                             ">
-                                <div style="width:70px;height:8px;background:#000;border:1px solid #555;border-radius:3px;box-shadow:inset 0 2px 4px rgba(0,0,0,0.9);"></div>
+                                <div style="width:120px;height:10px;background:#000;border:2px solid #666;border-radius:5px;box-shadow:inset 0 3px 6px rgba(0,0,0,0.95);"></div>
                             </div>
                         </div>
 
@@ -1099,46 +1115,47 @@
                     <!-- ═══════════════════════════════ -->
                     <!-- CHROME SIDE LEVER              -->
                     <!-- ═══════════════════════════════ -->
+                    <!-- Lever: bigger, flush to cabinet right edge -->
                     <div style="
                         position: absolute;
-                        right: -58px;
-                        top: 28px;
-                        bottom: 60px;
+                        right: -72px;
+                        top: 20px;
+                        bottom: 50px;
                         display: flex;
                         flex-direction: column;
                         align-items: center;
-                        width: 58px;
+                        width: 72px;
                     ">
-                        <!-- Mount plate on cabinet -->
+                        <!-- Mount plate -->
                         <div style="
-                            width: 32px; height: 30px;
-                            background: linear-gradient(135deg, #e0e0e0, #909090);
-                            border-radius: 4px 8px 8px 4px;
-                            border: 2px solid #777;
-                            box-shadow: 2px 2px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.5);
+                            width: 42px; height: 38px;
+                            background: linear-gradient(135deg, #e8e8e8, #969696);
+                            border-radius: 5px 10px 10px 5px;
+                            border: 3px solid #777;
+                            box-shadow: 3px 3px 10px rgba(0,0,0,0.55), inset 0 2px 3px rgba(255,255,255,0.55);
                             flex-shrink: 0;
                         "></div>
                         <!-- Chrome shaft -->
                         <div id="slotLever" onclick="pullSlotLever()" style="
-                            width: 14px;
+                            width: 18px;
                             flex: 1;
-                            background: linear-gradient(90deg, #aaa 0%, #f0f0f0 30%, #fff 50%, #e0e0e0 70%, #bbb 100%);
-                            border-radius: 7px;
-                            box-shadow: 2px 0 8px rgba(0,0,0,0.4), -1px 0 3px rgba(0,0,0,0.2);
+                            background: linear-gradient(90deg, #aaa 0%, #efefef 30%, #fff 50%, #e0e0e0 70%, #bbb 100%);
+                            border-radius: 9px;
+                            box-shadow: 3px 0 10px rgba(0,0,0,0.45), -2px 0 4px rgba(0,0,0,0.2);
                             cursor: pointer;
                             transition: transform 0.15s ease;
                             transform-origin: bottom center;
                         " class="lever-shaft"></div>
-                        <!-- Ball handle -->
+                        <!-- Ball handle (bigger) -->
                         <div id="leverBall" style="
-                            width: 46px; height: 46px;
+                            width: 62px; height: 62px;
                             border-radius: 50%;
-                            background: radial-gradient(circle at 38% 35%, #e03030, #cc1a1a 55%, #8b0000);
-                            border: 3px solid #6b0000;
+                            background: radial-gradient(circle at 38% 35%, #ef4040, #cc1a1a 55%, #8b0000);
+                            border: 4px solid #6b0000;
                             box-shadow:
-                                0 0 20px rgba(204,26,26,0.5),
-                                0 6px 16px rgba(0,0,0,0.6),
-                                inset 0 2px 6px rgba(255,150,150,0.4);
+                                0 0 28px rgba(204,26,26,0.6),
+                                0 8px 20px rgba(0,0,0,0.65),
+                                inset 0 3px 8px rgba(255,160,160,0.45);
                             cursor: pointer;
                             transition: transform 0.15s ease;
                             flex-shrink: 0;
