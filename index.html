@@ -316,6 +316,12 @@
             border-radius: 2px;
         }
         
+        /* Slot Machine cabinet sign pulse */
+        @keyframes slotSignPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.6), inset 0 1px 2px rgba(255,255,255,0.4); filter: brightness(1); }
+            50% { box-shadow: 0 0 60px rgba(251,191,36,0.9), 0 0 100px rgba(234,179,8,0.4), inset 0 1px 2px rgba(255,255,255,0.5); filter: brightness(1.15); }
+        }
+
         /* Chasing LEDs around slot frame */
         @keyframes ledFlash1 { 0%, 100% { border-color: #22d3ee; box-shadow: 0 0 15px #22d3ee; } 50% { border-color: #06b6d4; box-shadow: 0 0 5px #06b6d4; } }
         @keyframes ledFlash2 { 0%, 100% { border-color: #fbbf24; box-shadow: 0 0 15px #fbbf24; } 50% { border-color: #d97706; box-shadow: 0 0 5px #d97706; } }
@@ -328,22 +334,59 @@
         
         /* 3D Card flips */
         .card-perspective {
-            perspective: 1000px;
+            perspective: 1200px;
         }
         .card-inner {
-            transition: transform 0.6s;
+            transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
+            will-change: transform;
         }
-        .card-flipped {
+        .card-flipped .card-inner {
             transform: rotateY(180deg);
         }
-        .card-front, .card-back {
+        .card-face {
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
             position: absolute;
             inset: 0;
+            border-radius: 1rem;
         }
-        .card-back {
+        .card-face-back {
             transform: rotateY(180deg);
+        }
+        .card-wrap {
+            display: block;
+            width: 100%;
+            aspect-ratio: 2/3;
+            position: relative;
+            cursor: pointer;
+            border-radius: 1rem;
+        }
+        .card-wrap:not(.card-used):hover .card-inner {
+            transform: rotateY(12deg) scale(1.04);
+            transition: transform 0.25s ease;
+        }
+        .card-wrap.card-used {
+            cursor: default;
+            opacity: 0.55;
+            filter: grayscale(0.5);
+        }
+        .card-wrap.card-flipped:not(.card-used):hover .card-inner {
+            transform: rotateY(180deg) !important;
+        }
+        @keyframes cardRevealShimmer {
+            0% { opacity: 0; transform: scaleX(0); }
+            50% { opacity: 1; transform: scaleX(1); }
+            100% { opacity: 0; transform: scaleX(1); }
+        }
+        .card-shimmer {
+            position: absolute;
+            inset: 0;
+            border-radius: 1rem;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+            animation: cardRevealShimmer 0.7s ease forwards;
+            pointer-events: none;
+            z-index: 10;
         }
         
         /* Premium Winner Name animation (Yellow color, Solid black outline, Single line) */
@@ -876,23 +919,106 @@
             </div>
 
             <!-- 2. Casino Slot Machine Cabinet -->
-            <div id="slotContainer" class="hidden w-full max-w-4xl flex items-center justify-center relative premium-shadow">
-                <div class="w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-[10px] border-slate-850 rounded-[2.5rem] p-8 shadow-2xl relative flex flex-col items-center gap-6">
-                    <!-- Neon flashing title -->
-                    <div class="absolute -top-7 bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-500 text-slate-950 px-10 py-1.5 rounded-full text-sm font-extrabold tracking-widest tech-font shadow-2xl border-4 border-slate-950 animate-pulse">CASINO GOLD SLOT</div>
-                    
-                    <!-- Inner slot screen with LED lights container -->
-                    <div id="slotLedFrame" class="w-full h-[320px] bg-slate-950 rounded-3xl border-8 border-slate-950 relative overflow-visible shadow-[0_0_50px_rgba(234,179,8,0.15)]">
-                        <canvas id="slotCanvas" width="1200" height="300" class="w-full h-full rounded-2xl"></canvas>
-                        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none rounded-2xl"></div>
-                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-24 border-y-4 border-yellow-500/35 bg-yellow-500/5 pointer-events-none shadow-[0_0_25px_rgba(234,179,8,0.1)]"></div>
+            <div id="slotContainer" class="hidden w-full max-w-5xl flex items-center justify-center relative premium-shadow" style="perspective: 1200px;">
+                <!-- Cabinet body with 3D metallic look -->
+                <div class="w-full relative flex flex-col items-center" style="
+                    background: linear-gradient(180deg, #1e293b 0%, #0f172a 40%, #0a0f1e 100%);
+                    border-radius: 2.5rem;
+                    border: 8px solid #334155;
+                    box-shadow:
+                        0 0 0 3px #1e293b,
+                        0 0 0 6px #475569,
+                        0 0 0 9px #1e293b,
+                        inset 0 2px 6px rgba(255,255,255,0.08),
+                        0 40px 80px rgba(0,0,0,0.9),
+                        0 0 80px rgba(234,179,8,0.12);
+                    padding: 2.5rem 2.5rem 2rem;
+                ">
+                    <!-- TOP chrome sign -->
+                    <div style="
+                        position: absolute;
+                        top: -22px;
+                        background: linear-gradient(90deg, #ca8a04, #fbbf24, #fef08a, #fbbf24, #ca8a04);
+                        color: #0f172a;
+                        padding: 6px 48px;
+                        border-radius: 9999px;
+                        font-size: 0.85rem;
+                        font-weight: 900;
+                        letter-spacing: 0.25em;
+                        border: 4px solid #0f172a;
+                        box-shadow: 0 0 30px rgba(251,191,36,0.6), inset 0 1px 2px rgba(255,255,255,0.4);
+                        animation: slotSignPulse 1.8s ease-in-out infinite;
+                        z-index: 10;
+                    ">🎰 CASINO GOLD SLOT 🎰</div>
+
+                    <!-- Left decorative chrome bars -->
+                    <div style="
+                        position: absolute; left: 24px; top: 70px; bottom: 70px; width: 14px;
+                        background: linear-gradient(180deg, #475569, #94a3b8, #64748b, #94a3b8, #475569);
+                        border-radius: 7px;
+                        box-shadow: inset 0 0 6px rgba(255,255,255,0.2), 2px 0 8px rgba(0,0,0,0.5);
+                    "></div>
+                    <div style="
+                        position: absolute; right: 24px; top: 70px; bottom: 70px; width: 14px;
+                        background: linear-gradient(180deg, #475569, #94a3b8, #64748b, #94a3b8, #475569);
+                        border-radius: 7px;
+                        box-shadow: inset 0 0 6px rgba(255,255,255,0.2), -2px 0 8px rgba(0,0,0,0.5);
+                    "></div>
+
+                    <!-- Slot reel frame (LED border + canvas) -->
+                    <div id="slotLedFrame" style="
+                        width: 100%;
+                        height: 420px;
+                        background: #020617;
+                        border-radius: 1.5rem;
+                        border: 10px solid #1e293b;
+                        position: relative;
+                        overflow: visible;
+                        box-shadow:
+                            inset 0 0 60px rgba(0,0,0,0.9),
+                            inset 0 0 20px rgba(34,211,238,0.05),
+                            0 0 60px rgba(234,179,8,0.2);
+                        margin-top: 1.5rem;
+                    ">
+                        <canvas id="slotCanvas" width="1400" height="400" style="width:100%; height:100%; border-radius: 1rem; display:block;"></canvas>
+                        <!-- Top/bottom gradient mask for cylinder illusion -->
+                        <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.75) 100%); pointer-events:none; border-radius: 1rem;"></div>
+                        <!-- Center payline highlight -->
+                        <div style="position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:90px; border-top: 3px solid rgba(234,179,8,0.5); border-bottom: 3px solid rgba(234,179,8,0.5); background: rgba(234,179,8,0.04); pointer-events:none; box-shadow: 0 0 30px rgba(234,179,8,0.15);"></div>
+                        <!-- Payline center arrow markers -->
+                        <div style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#fbbf24; font-size:1.5rem; filter: drop-shadow(0 0 8px #fbbf24); pointer-events:none;">▶</div>
+                        <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:#fbbf24; font-size:1.5rem; filter: drop-shadow(0 0 8px #fbbf24); pointer-events:none;">◀</div>
+                    </div>
+
+                    <!-- Bottom decorative panel with SPIN button -->
+                    <div style="display:flex; align-items:center; justify-content:center; gap:2rem; margin-top:1.5rem; width:100%;">
+                        <div style="flex:1; height:3px; background:linear-gradient(90deg, transparent, #475569, transparent); border-radius:2px;"></div>
+                        <button onclick="pullSlotLever()" style="
+                            background: linear-gradient(135deg, #dc2626, #991b1b);
+                            color: white;
+                            font-weight: 900;
+                            font-size: 1.1rem;
+                            letter-spacing: 0.1em;
+                            padding: 14px 48px;
+                            border-radius: 9999px;
+                            border: 4px solid #7f1d1d;
+                            box-shadow: 0 0 30px rgba(220,38,38,0.6), inset 0 2px 4px rgba(255,255,255,0.2), 0 6px 0 #7f1d1d;
+                            cursor: pointer;
+                            transition: all 0.12s ease;
+                            transform: translateY(0);
+                        " onmousedown="this.style.transform='translateY(4px)'; this.style.boxShadow='0 0 20px rgba(220,38,38,0.4), inset 0 2px 4px rgba(255,255,255,0.1), 0 2px 0 #7f1d1d';"
+                           onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 30px rgba(220,38,38,0.6), inset 0 2px 4px rgba(255,255,255,0.2), 0 6px 0 #7f1d1d';">
+                            🎰 SPIN
+                        </button>
+                        <div style="flex:1; height:3px; background:linear-gradient(90deg, transparent, #475569, transparent); border-radius:2px;"></div>
                     </div>
                 </div>
-                <!-- Physical Lever Pull -->
-                <div id="slotLever" class="w-20 h-56 relative -ml-2 flex flex-col items-center cursor-pointer" onclick="pullSlotLever()">
-                    <div class="w-4 h-36 bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 rounded-b-lg lever-shaft origin-bottom shadow-2xl"></div>
-                    <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 rounded-full absolute top-0 shadow-[0_0_25px_rgba(239,68,68,0.7)] -translate-y-6 active:scale-95 transition" id="leverBall"></div>
-                    <div class="w-16 h-12 bg-slate-800 border-2 border-slate-700 rounded-t-2xl absolute bottom-0 shadow-2xl"></div>
+
+                <!-- Physical Side Lever -->
+                <div id="slotLever" class="w-20 h-60 relative -ml-3 flex flex-col items-center cursor-pointer" onclick="pullSlotLever()" style="flex-shrink:0;">
+                    <div class="w-4 h-40 bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 rounded-b-lg lever-shaft origin-bottom shadow-2xl"></div>
+                    <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 rounded-full absolute top-0 shadow-[0_0_30px_rgba(239,68,68,0.8)] -translate-y-6 active:scale-95 transition" id="leverBall"></div>
+                    <div class="w-16 h-14 bg-slate-800 border-2 border-slate-700 rounded-t-2xl absolute bottom-0 shadow-2xl"></div>
                 </div>
             </div>
 
@@ -1934,12 +2060,12 @@
         function drawSlotMachine(blur = false) {
             const w = slotCanvas.width;
             const h = slotCanvas.height;
-            const rowHeight = 110;
+            const rowHeight = 130;  // Taller rows for bigger canvas
             slotCtx.clearRect(0, 0, w, h);
 
             if (appState.names.length === 0) {
                 slotCtx.fillStyle = '#475569';
-                slotCtx.font = "bold 32px 'Noto Sans Lao', sans-serif";
+                slotCtx.font = "bold 40px 'Noto Sans Lao', sans-serif";
                 slotCtx.textAlign = "center";
                 slotCtx.textBaseline = "middle";
                 slotCtx.fillText('ບໍ່ມີລາຍຊື່ (No Names)', w / 2, h / 2);
@@ -1947,41 +2073,67 @@
             }
 
             slotCtx.save();
-            for (let i = -3; i < 5; i++) {
+            const cy = h / 2;
+            const cylinderRadius = h * 0.65; // virtual cylinder radius
+
+            for (let i = -4; i < 6; i++) {
+                // Compute the angle of this row on the cylinder
+                const rawOffset = (slotOffset % rowHeight) + (i * rowHeight);
+                // rawOffset=0 is the center row, positive goes down
+                const distFromCenter = rawOffset - cy;
+
+                // Map distFromCenter to an angle on the cylinder surface
+                const angleFraction = distFromCenter / cylinderRadius;
+                if (Math.abs(angleFraction) > 1) continue; // outside visible arc
+                const angle = Math.asin(Math.max(-1, Math.min(1, angleFraction)));
+
+                // Project Y: where the row appears on screen
+                const projectedY = cy + Math.sin(angle) * cylinderRadius;
+                // Scale by cos(angle) for foreshortening
+                const scale = Math.cos(angle);
+                if (scale <= 0.02) continue;
+
+                // Alpha fades out as we move away from center
+                const alpha = Math.max(0, Math.min(1, scale * 1.2 - 0.1));
+
                 const index = (Math.floor(slotOffset / rowHeight) + i) % appState.names.length;
-                const safeIndex = index < 0 ? appState.names.length + index : index;
+                const safeIndex = ((index % appState.names.length) + appState.names.length) % appState.names.length;
                 const name = appState.names[safeIndex] || '';
 
-                const yOffset = (slotOffset % rowHeight) + (i * rowHeight);
-                const cy = h / 2;
-                const distFromCenter = yOffset - cy;
-                const projectionAngle = (distFromCenter / h) * (Math.PI / 2);
-                
-                const projectedY = cy + Math.sin(projectionAngle) * (h / 1.4);
-                const scale = Math.cos(projectionAngle);
-                
-                if (scale <= 0) continue;
+                const isCenter = Math.abs(angle) < 0.18; // ~±10°
 
                 slotCtx.save();
                 slotCtx.translate(w / 2, projectedY);
-                slotCtx.scale(scale, scale);
-                
-                const alpha = Math.max(0, scale - 0.2);
-                slotCtx.fillStyle = `rgba(34, 211, 238, ${alpha})`;
-                slotCtx.font = "bold 44px 'Noto Sans Lao', sans-serif";
-                if (Math.abs(distFromCenter) < 50) {
-                    slotCtx.fillStyle = `rgba(234, 179, 8, ${alpha})`;
-                    slotCtx.font = "bold 60px 'Noto Sans Lao', sans-serif";
+                slotCtx.scale(1, scale); // only vertical squish (cylinder illusion)
+
+                // Draw highlight row bg rectangle for center item
+                if (isCenter) {
+                    const bgH = rowHeight * scale;
+                    slotCtx.fillStyle = 'rgba(234, 179, 8, 0.06)';
+                    slotCtx.fillRect(-w / 2, -bgH / 2, w, bgH);
+                }
+
+                // Text shadow glow
+                if (blur) {
+                    slotCtx.shadowBlur = isCenter ? 40 : 15;
+                    slotCtx.shadowColor = isCenter ? 'rgba(234,179,8,0.85)' : 'rgba(34,211,238,0.5)';
+                } else if (isCenter) {
+                    slotCtx.shadowBlur = 30;
+                    slotCtx.shadowColor = 'rgba(234,179,8,0.7)';
+                }
+
+                if (isCenter) {
+                    slotCtx.fillStyle = `rgba(251, 191, 36, ${alpha})`;
+                    slotCtx.font = "bold 78px 'Noto Sans Lao', sans-serif";
+                } else {
+                    const dimAlpha = alpha * 0.75;
+                    slotCtx.fillStyle = `rgba(148, 163, 184, ${dimAlpha})`;
+                    slotCtx.font = "bold 52px 'Noto Sans Lao', sans-serif";
                 }
                 slotCtx.textAlign = "center";
                 slotCtx.textBaseline = "middle";
-
-                if (blur) {
-                    slotCtx.shadowBlur = 24;
-                    slotCtx.shadowColor = 'rgba(34,211,238,0.7)';
-                }
-                
                 slotCtx.fillText(name, 0, 0);
+
                 slotCtx.restore();
             }
             slotCtx.restore();
@@ -2012,12 +2164,12 @@
                 requestAnimationFrame(() => runSlotEngineAnimationTimeBased(startTime, duration, startOffset, totalOffset));
             } else {
                 isSlotSpinning = false;
-                const rowHeight = 110;
+                const rowHeight = 130;
                 slotOffset = Math.round(slotOffset / rowHeight) * rowHeight;
                 drawSlotMachine(false);
                 
                 const centerIndex = Math.round(slotOffset / rowHeight) % appState.names.length;
-                const winnerIndex = centerIndex < 0 ? appState.names.length + centerIndex : centerIndex;
+                const winnerIndex = ((centerIndex % appState.names.length) + appState.names.length) % appState.names.length;
                 const winner = appState.names[winnerIndex];
                 
                 setTimeout(() => announceWinner(winner), 400);
@@ -2036,55 +2188,116 @@
             
             const maxVisible = Math.min(appState.names.length, appState.cardCount);
             
-            let colClass = "grid-cols-4";
-            if (maxVisible > 12) colClass = "grid-cols-6";
-            if (maxVisible > 18) colClass = "grid-cols-8";
+            let cols = 4;
+            if (maxVisible > 12) cols = 6;
+            if (maxVisible > 18) cols = 8;
+            if (maxVisible <= 6) cols = 3;
+            if (maxVisible <= 3) cols = maxVisible;
             
-            container.className = `w-full max-w-5xl grid ${colClass} gap-4 p-4 overflow-y-auto max-h-[75vh]`;
+            container.className = `w-full max-w-6xl p-6 overflow-y-auto max-h-[78vh]`;
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+            container.style.gap = '1rem';
 
             for (let i = 0; i < maxVisible; i++) {
-                const card = document.createElement('div');
-                card.className = "card-perspective aspect-[3/4] cursor-pointer w-full relative h-40";
-                
-                let cardBackHTML = `<div class="card-back absolute inset-0 bg-slate-850 rounded-2xl flex items-center justify-center border-2 border-slate-700 shadow-xl">`;
-                if (appState.logoData) {
-                    cardBackHTML += `<img src="${appState.logoData}" class="w-16 h-16 object-contain" />`;
-                } else {
-                    cardBackHTML += `<i class="fa-solid fa-cube text-4xl text-blue-500"></i>`;
-                }
-                cardBackHTML += `</div>`;
+                const wrap = document.createElement('div');
+                wrap.className = 'card-perspective card-wrap';
+                wrap.id = `card-wrap-${i}`;
 
-                card.innerHTML = `
-                    <div class="card-inner w-full h-full relative transform-style-preserve-3d duration-700">
-                        ${cardBackHTML}
-                        <div class="card-front absolute inset-0 bg-gradient-to-br from-blue-900 to-indigo-950 rounded-2xl flex flex-col items-center justify-center border-4 border-yellow-400 p-2 text-center shadow-2xl backface-hidden">
-                            <i class="fa-solid fa-crown text-yellow-400 text-3xl mb-2 animate-bounce"></i>
-                            <span class="text-white text-xs font-bold break-words w-full" id="cardName-${i}">???</span>
+                // Card back face (the side shown before clicking)
+                let backContent = '';
+                if (appState.logoData) {
+                    backContent = `<img src="${appState.logoData}" style="width:50%; max-width:80px; object-fit:contain; filter:drop-shadow(0 0 12px rgba(99,102,241,0.5));" />`;
+                } else {
+                    backContent = `<span style="font-size:2.5rem; filter:drop-shadow(0 0 12px rgba(99,102,241,0.7));">🃏</span>`;
+                }
+
+                const cardNum = String(i + 1).padStart(2, '0');
+
+                wrap.innerHTML = `
+                    <div class="card-inner" style="width:100%; height:100%; position:relative;">
+                        <!-- FRONT (shown before flip = card back design) -->
+                        <div class="card-face" style="
+                            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
+                            border: 2px solid #4338ca;
+                            box-shadow: 0 4px 20px rgba(67,56,202,0.4), inset 0 0 40px rgba(99,102,241,0.08);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                        ">
+                            <!-- Card number top-left -->
+                            <div style="position:absolute; top:8px; left:10px; color:#6366f1; font-size:0.65rem; font-weight:700; opacity:0.7;">${cardNum}</div>
+                            <div style="position:absolute; bottom:8px; right:10px; color:#6366f1; font-size:0.65rem; font-weight:700; opacity:0.7; transform:rotate(180deg);">${cardNum}</div>
+                            <!-- Decorative diamond pattern -->
+                            <div style="position:absolute; inset:0; overflow:hidden; border-radius:1rem; opacity:0.08;">
+                                <div style="position:absolute; inset:0; background: repeating-linear-gradient(45deg, #818cf8 0, #818cf8 1px, transparent 0, transparent 50%) 0 0 / 20px 20px;"></div>
+                            </div>
+                            ${backContent}
+                            <div style="color:#6366f1; font-size:0.65rem; font-weight:700; letter-spacing:0.1em; opacity:0.8; margin-top:4px;">CLICK TO REVEAL</div>
+                        </div>
+                        <!-- BACK (shown after flip = winner revealed) -->
+                        <div class="card-face card-face-back" style="
+                            background: linear-gradient(135deg, #0c1a3a 0%, #1e3a5f 50%, #0c1a3a 100%);
+                            border: 3px solid #fbbf24;
+                            box-shadow: 0 0 30px rgba(251,191,36,0.4), inset 0 0 40px rgba(251,191,36,0.05);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            padding: 8px;
+                            text-align: center;
+                        ">
+                            <span style="font-size:1.5rem; filter:drop-shadow(0 0 8px #fbbf24);">👑</span>
+                            <span id="cardName-${i}" style="
+                                color: #fef9c3;
+                                font-weight: 900;
+                                font-size: clamp(0.6rem, 2vw, 1rem);
+                                word-break: break-word;
+                                line-height: 1.3;
+                                text-shadow: 0 0 15px rgba(251,191,36,0.8);
+                                width: 100%;
+                            ">???</span>
+                            <div style="width: 60%; height: 2px; background: linear-gradient(90deg, transparent, #fbbf24, transparent);"></div>
                         </div>
                     </div>
                 `;
 
-                card.onclick = () => {
+                wrap.onclick = () => {
                     initAudioContext();
-                    if (appState.isDrawing) return;
+                    // Don't allow clicking if already drawing or this card is used
+                    if (appState.isDrawing || wrap.classList.contains('card-used')) return;
                     appState.isDrawing = true;
-                    playWinnerSound(); // Play only winning sound without overlapping loops
 
-                    const inner = card.querySelector('.card-inner');
                     const winner = getRandomWinnerFromPool(appState.names, false);
                     document.getElementById(`cardName-${i}`).innerText = winner;
 
-                    inner.classList.add('card-flipped');
+                    // Flip animation
+                    wrap.classList.add('card-flipped');
 
+                    // Add shimmer effect after flip
+                    setTimeout(() => {
+                        const shimmer = document.createElement('div');
+                        shimmer.className = 'card-shimmer';
+                        wrap.appendChild(shimmer);
+                        setTimeout(() => shimmer.remove(), 800);
+                    }, 400);
+
+                    // Play win sound
+                    playWinnerSound();
+
+                    // Show winner overlay after flip settles
                     setTimeout(() => {
                         announceWinner(winner);
-                        setTimeout(() => {
-                            inner.classList.remove('card-flipped');
-                        }, 1200);
-                    }, appState.drawDuration * 1000);
+                        // Mark card as used (grayed out)
+                        wrap.classList.add('card-used');
+                        appState.isDrawing = false;
+                    }, 900);
                 };
 
-                container.appendChild(card);
+                container.appendChild(wrap);
             }
         }
 
